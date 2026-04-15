@@ -1,0 +1,17 @@
+node_modules/
+**/node_modules/
+
+dist/
+**/dist/
+
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+.neon
+.neon/
+.vercel/
+
+npm-debug.log*
+yarn-error.log*
