@@ -1,0 +1,277 @@
+:root {
+  --bg: #0f172a;
+  --panel: #111827;
+  --border: #334155;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+  --accent: #22c55e;
+  --accent-alt: #0ea5e9;
+  --danger: #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(180deg, #020617, #0f172a);
+  color: var(--text);
+}
+
+.app-shell {
+  max-width: 900px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 12px;
+  padding: 20px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 26px;
+}
+
+.app-header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.status-panel {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.status-item {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+
+.chat-container {
+  background: rgba(17, 24, 39, 0.75);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  overflow-y: auto;
+  min-height: 380px;
+  max-height: 58vh;
+}
+
+.message {
+  max-width: 86%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 8px 0;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+
+.lesson-illustration {
+  display: block;
+  width: 50%;
+  max-width: 360px;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  margin: 6px 0;
+  background: #0b1220;
+}
+
+.message.bot {
+  background: #1f2937;
+}
+
+.message.user {
+  background: #0b2f3c;
+  margin-left: auto;
+}
+
+.hint-word {
+  position: relative;
+  border-bottom: 1px dashed #60a5fa;
+  cursor: help;
+}
+
+.lang-en {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.lang-ua {
+  color: #60a5fa;
+  font-weight: 600;
+}
+
+.hint-word::after {
+  content: attr(data-ua);
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 6px);
+  background: #0b1220;
+  color: #e2e8f0;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  padding: 4px 8px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.hint-word:hover::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.controls {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.lesson-picker-row {
+  margin-bottom: 10px;
+}
+
+.lesson-picker-controls {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+#lessonSelect {
+  background: #0b1220;
+  color: var(--text);
+  padding: 10px 12px;
+}
+
+#startLessonButton {
+  background: #2563eb;
+  color: #eff6ff;
+}
+
+.task-prompt {
+  background: #0b1220;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  color: #e2e8f0;
+}
+
+.input-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--muted);
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+input,
+button {
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  font-size: 15px;
+}
+
+input {
+  background: #0b1220;
+  color: var(--text);
+  padding: 10px 12px;
+}
+
+button {
+  padding: 10px 14px;
+  color: var(--text);
+  background: #1e293b;
+  cursor: pointer;
+}
+
+#sendButton {
+  background: var(--accent);
+  color: #052e16;
+  font-weight: 700;
+}
+
+.secondary-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+#speakButton {
+  background: var(--accent-alt);
+  color: #082f49;
+}
+
+#lessonButton {
+  background: #8b5cf6;
+  color: #f5f3ff;
+}
+
+#translationToggleButton {
+  background: #475569;
+  color: #f8fafc;
+}
+
+#dictionaryButton {
+  background: #0f766e;
+  color: #ecfeff;
+}
+
+#dictionaryMoreButton {
+  background: #155e75;
+  color: #ecfeff;
+}
+
+#translationToggleButton.is-off {
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
+#resetButton {
+  background: var(--danger);
+  color: #fff;
+}
+
+body.hints-disabled .hint-word {
+  border-bottom: none;
+  cursor: text;
+  pointer-events: none;
+}
+
+body.hints-disabled .hint-word::after {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .app-shell {
+    padding: 12px;
+  }
+
+  .input-row {
+    grid-template-columns: 1fr;
+  }
+
+  .lesson-picker-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .lesson-illustration {
+    width: 100%;
+    max-width: 100%;
+  }
+}

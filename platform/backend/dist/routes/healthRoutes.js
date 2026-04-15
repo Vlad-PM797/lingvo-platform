@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.healthRouter = void 0;
+const express_1 = require("express");
+const healthController_1 = require("../controllers/healthController");
+const asyncHandler_1 = require("../utils/asyncHandler");
+exports.healthRouter = (0, express_1.Router)();
+exports.healthRouter.get("/", (0, asyncHandler_1.asyncHandler)((request, response) => healthController_1.healthController.getHealth(request, response)));
+exports.healthRouter.get("/live", (0, asyncHandler_1.asyncHandler)((request, response) => healthController_1.healthController.getLiveness(request, response)));
+exports.healthRouter.get("/ready", (0, asyncHandler_1.asyncHandler)((request, response) => healthController_1.healthController.getReadiness(request, response)));
+exports.healthRouter.get("/metrics", (0, asyncHandler_1.asyncHandler)((request, response) => healthController_1.healthController.getMetrics(request, response)));

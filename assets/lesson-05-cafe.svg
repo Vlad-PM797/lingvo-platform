@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280">
+  <rect width="720" height="280" fill="#f8f5ee" rx="14"/>
+  <rect x="16" y="16" width="688" height="248" fill="#fffdf8" stroke="#d8cfbf" stroke-width="2" rx="10"/>
+  <text x="36" y="52" fill="#3f3a33" font-family="Georgia, serif" font-size="30">Lesson 5 • In a cafe</text>
+  <line x1="36" y1="66" x2="684" y2="66" stroke="#c9bea9" stroke-width="2"/>
+  <rect x="40" y="92" width="214" height="128" rx="12" fill="#5f7c70"/>
+  <text x="102" y="138" fill="#f6f3ec" font-family="Georgia, serif" font-size="34">MENU</text>
+  <text x="78" y="176" fill="#f6f3ec" font-family="Georgia, serif" font-size="24">Tea</text>
+  <text x="166" y="176" fill="#f6f3ec" font-family="Georgia, serif" font-size="24">Coffee</text>
+  <text x="290" y="126" fill="#2f2a24" font-family="Georgia, serif" font-size="30">I would like coffee, please.</text>
+  <text x="290" y="166" fill="#6c6256" font-family="Georgia, serif" font-size="24">Can I have the bill?</text>
+  <text x="36" y="248" fill="#6c6256" font-family="Georgia, serif" font-size="20">Polite form: I would like ...</text>
+</svg>

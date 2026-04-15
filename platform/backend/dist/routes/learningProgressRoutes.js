@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.learningProgressRouter = void 0;
+const express_1 = require("express");
+const learningProgressController_1 = require("../controllers/learningProgressController");
+const asyncHandler_1 = require("../utils/asyncHandler");
+const authMiddleware_1 = require("../middleware/authMiddleware");
+exports.learningProgressRouter = (0, express_1.Router)();
+exports.learningProgressRouter.use(authMiddleware_1.requireAuth);
+exports.learningProgressRouter.post("/attempts", (0, asyncHandler_1.asyncHandler)((request, response) => learningProgressController_1.learningProgressController.submitAttempt(request, response)));
+exports.learningProgressRouter.get("/progress/me", (0, asyncHandler_1.asyncHandler)((request, response) => learningProgressController_1.learningProgressController.getMyProgress(request, response)));

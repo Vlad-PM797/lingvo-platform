@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lingvo Access Portal</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="layout">
+    <section class="card">
+      <h1>Lingvo: доступ користувача</h1>
+      <p class="hint">
+        Вкажи публічний URL бекенду (наприклад, <code>https://lingvo-api.onrender.com</code>),
+        потім зареєструй користувача або увійди.
+      </p>
+      <label class="label" for="baseUrl">Backend URL</label>
+      <input id="baseUrl" type="url" placeholder="https://your-backend-domain.com" />
+    </section>
+
+    <section class="card">
+      <h2>Реєстрація</h2>
+      <label class="label" for="registerEmail">Email</label>
+      <input id="registerEmail" type="email" placeholder="user@example.com" />
+      <label class="label" for="registerPassword">Пароль (мін. 8 символів)</label>
+      <input id="registerPassword" type="password" placeholder="********" />
+      <button id="registerButton">Зареєструватися</button>
+    </section>
+
+    <section class="card">
+      <h2>Вхід</h2>
+      <label class="label" for="loginEmail">Email</label>
+      <input id="loginEmail" type="email" placeholder="user@example.com" />
+      <label class="label" for="loginPassword">Пароль</label>
+      <input id="loginPassword" type="password" placeholder="********" />
+      <button id="loginButton">Увійти</button>
+    </section>
+
+    <section class="card">
+      <h2>Результат</h2>
+      <pre id="output">Готово до роботи.</pre>
+    </section>
+  </main>
+
+  <script src="./main.js"></script>
+</body>
+</html>
