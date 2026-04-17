@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-labelledby="t">
+  <title id="t">!BC45=B8 Lingvo  ?5@H5 ?@82VB0==O</title>
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#22d3ee"/>
+    </linearGradient>
+  </defs>
+  <rect width="320" height="240" rx="18" fill="#0f172a"/>
+  <circle cx="95" cy="118" r="48" fill="url(#g1)" opacity="0.95"/>
+  <circle cx="225" cy="118" r="48" fill="#f472b6" opacity="0.9"/>
+  <ellipse cx="95" cy="98" rx="10" ry="8" fill="#0f172a"/>
+  <ellipse cx="225" cy="98" rx="10" ry="8" fill="#0f172a"/>
+  <path d="M70 150 Q95 175 120 150" stroke="#fef08a" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <path d="M200 150 Q225 178 250 150" stroke="#fef08a" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <rect x="130" y="52" width="60" height="36" rx="10" fill="#fefce8" stroke="#fde047" stroke-width="2"/>
+  <text x="160" y="76" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="14" fill="#854d0e">Hi!</text>
+  <rect x="118" y="188" width="84" height="10" rx="4" fill="#334155" opacity="0.7"/>
+</svg>

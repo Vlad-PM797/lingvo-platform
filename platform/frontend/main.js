@@ -136,9 +136,27 @@ async function handleLogin() {
     logInfo("auth.login.success", { email });
     setOutput(`Вхід успішний. Токени збережено локально.\n${JSON.stringify(result, null, 2)}`, "ok");
     elements.learningOutput.textContent = "Вхід успішний. Натисни \"Завантажити курси\".";
+    window.setTimeout(() => {
+      void redirectToProjectPage();
+    }, 700);
   } catch (error) {
     logError("auth.login.failed", error);
     setOutput(`Помилка входу:\n${error instanceof Error ? error.message : String(error)}`, "warn");
+  }
+}
+
+async function redirectToProjectPage() {
+  const primaryProjectPath = "/trainer";
+  const fallbackProjectPath = "/trainer.html";
+  try {
+    const response = await fetch(primaryProjectPath, {
+      method: "HEAD",
+      cache: "no-store",
+    });
+    window.location.href = response.ok ? primaryProjectPath : fallbackProjectPath;
+  } catch (error) {
+    logError("auth.login.redirect_probe.failed", error);
+    window.location.href = fallbackProjectPath;
   }
 }
 

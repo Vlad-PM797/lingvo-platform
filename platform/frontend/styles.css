@@ -116,3 +116,168 @@ button:hover {
 .warn {
   color: var(--warn);
 }
+
+.portal-top {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 12px 18px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.portal-nav-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+
+.portal-home-link {
+  color: #38bdf8;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.portal-home-link:hover {
+  text-decoration: underline;
+}
+
+.portal-theme-toggle {
+  margin-top: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+html[data-theme="light"] body {
+  background: linear-gradient(180deg, #ecfdf5, #f8fafc);
+  color: #0f172a;
+}
+
+html[data-theme="light"] .card {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #cbd5e1;
+}
+
+html[data-theme="light"] .hint,
+html[data-theme="light"] .label {
+  color: #475569;
+}
+
+html[data-theme="light"] input,
+html[data-theme="light"] select {
+  background: #f9fafb;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+html[data-theme="light"] button {
+  background: #e2e8f0;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+html[data-theme="light"] #output,
+html[data-theme="light"] #learningOutput {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .portal-home-link {
+  color: #047857;
+}
+
+html[data-theme="light"] .portal-theme-toggle {
+  background: #ffffff;
+  border-color: #86efac;
+}
+
+.scene-find-hint {
+  margin-top: 8px;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.lesson-scene-mount {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px dashed var(--border);
+  background: rgba(15, 23, 42, 0.35);
+}
+
+.lesson-scene-empty {
+  margin: 0;
+  color: var(--warn);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.lesson-scene-heading {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  color: var(--ok);
+}
+
+.lesson-scene-card {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.lesson-scene-card:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.lesson-scene-figure {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #020617;
+  line-height: 0;
+}
+
+.lesson-scene-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 220px;
+  object-fit: contain;
+}
+
+.lesson-scene-caption {
+  font-size: 0.92rem;
+}
+
+.lesson-scene-en {
+  margin: 0 0 4px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.lesson-scene-ua {
+  margin: 0;
+  color: var(--muted);
+}
+
+html[data-theme="light"] .lesson-scene-mount {
+  background: rgba(241, 245, 249, 0.95);
+  border-color: #cbd5e1;
+}
+
+html[data-theme="light"] .lesson-scene-figure {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}

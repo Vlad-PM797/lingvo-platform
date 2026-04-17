@@ -16,7 +16,7 @@ Node.js + TypeScript + Express backend for Lingvo platform stage 1-6.
   - `GET /learning/lessons/:lessonId`
 - Learning progress endpoints (authorized):
   - `POST /learning/attempts`
-  - `GET /learning/progress/me`
+  - `GET /learning/progress/me` (повертає також `streakDays` за календарними днями завершень і `spotlightLesson` для останньої активності)
 - Admin endpoints (admin-only):
   - `POST /admin/courses`
   - `PUT /admin/courses/:courseId`
@@ -47,6 +47,7 @@ Node.js + TypeScript + Express backend for Lingvo platform stage 1-6.
    - `migrations/002_learning_core.sql`
    - `migrations/003_seed_learning_core.sql`
    - `migrations/004_admin_audit.sql`
+   - `migrations/005_lesson_dialogue_scenes.sql`
 5. Start development server:
    - `npm run dev`
 

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280">
+  <rect width="720" height="280" fill="#f8f5ee" rx="14"/>
+  <rect x="16" y="16" width="688" height="248" fill="#fffdf8" stroke="#d8cfbf" stroke-width="2" rx="10"/>
+  <text x="36" y="52" fill="#3f3a33" font-family="Georgia, serif" font-size="30">Lesson 1 • Introduction</text>
+  <line x1="36" y1="66" x2="684" y2="66" stroke="#c9bea9" stroke-width="2"/>
+  <circle cx="120" cy="124" r="22" fill="#5b7a5f"/>
+  <line x1="120" y1="146" x2="120" y2="198" stroke="#5b7a5f" stroke-width="7"/>
+  <line x1="120" y1="160" x2="90" y2="180" stroke="#5b7a5f" stroke-width="7"/>
+  <line x1="120" y1="160" x2="150" y2="140" stroke="#5b7a5f" stroke-width="7"/>
+  <text x="182" y="128" fill="#2f2a24" font-family="Georgia, serif" font-size="28">Hello! My name is Anna.</text>
+  <text x="182" y="164" fill="#6c6256" font-family="Georgia, serif" font-size="24">Pryvit! Mene zvaty Anna.</text>
+  <text x="36" y="236" fill="#6c6256" font-family="Georgia, serif" font-size="20">Phrase model: Hello/Hi, my name is ...</text>
+</svg>

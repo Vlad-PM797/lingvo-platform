@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lingvo Project</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="portal-top">
+    <nav class="portal-nav-cluster" aria-label="Розділи">
+      <a class="portal-home-link" href="./landing.html">Головна</a>
+      <a class="portal-home-link" href="./portal.html">Портал</a>
+      <a class="portal-home-link" href="./trainer.html">Тренажер</a>
+    </nav>
+    <button type="button" class="portal-theme-toggle" id="portalThemeToggle" aria-pressed="false">
+      <span aria-hidden="true">◐</span>
+      <span id="portalThemeToggleLabel">Світла</span>
+    </button>
+  </header>
+  <main class="layout">
+    <section class="card">
+      <h1>Lingvo: навчальна платформа</h1>
+      <p class="hint">Тут ти можеш проходити уроки, відправляти відповіді і зберігати прогрес.</p>
+      <label class="label" for="baseUrl">Backend URL</label>
+      <input id="baseUrl" type="url" placeholder="https://your-backend-domain.com" />
+      <div class="actions-row">
+        <button id="loadCoursesButton">Завантажити курси</button>
+        <button id="loadProgressButton">Мій прогрес</button>
+        <button id="logoutButton">Вийти</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <label class="label" for="courseSelect">Курс</label>
+      <select id="courseSelect"></select>
+
+      <label class="label" for="lessonSelect">Урок</label>
+      <select id="lessonSelect"></select>
+
+      <div class="actions-row">
+        <button id="openLessonButton">Відкрити урок</button>
+      </div>
+      <p class="hint scene-find-hint">
+        <strong>Ілюстрації MVP:</strong> з’являться <em>під</em> текстом уроку після «Відкрити урок» для
+        <strong>Basics 01: Greetings</strong> або <strong>Basics 02: Daily Phrases</strong>.
+        Файли лежать у репозиторії: <code>platform/frontend/scenes/</code> (на сервері — поруч із <code>project.html</code>).
+      </p>
+      <pre id="lessonOutput">Завантаж урок для старту.</pre>
+      <div id="lessonSceneMount" class="lesson-scene-mount" hidden aria-label="Сцени до реплік уроку"></div>
+    </section>
+
+    <section class="card">
+      <h2>Відповідь по уроку</h2>
+      <label class="label" for="answerInput">Твоя відповідь</label>
+      <input id="answerInput" type="text" placeholder="Введи відповідь англійською..." />
+      <div class="actions-row">
+        <button id="submitAttemptButton">Надіслати відповідь</button>
+      </div>
+      <pre id="attemptOutput">Обери урок і надішли відповідь.</pre>
+    </section>
+  </main>
+
+  <script src="./theme.js"></script>
+  <script src="./project.js"></script>
+</body>
+</html>

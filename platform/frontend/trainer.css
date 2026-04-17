@@ -276,25 +276,79 @@ body.hints-disabled .hint-word::after {
   }
 }
 
-.local-entry-nav {
+.portal-top--trainer {
   max-width: 900px;
-  margin: 0 auto;
-  padding: 12px 20px 0;
-  font-size: 0.9rem;
-  font-weight: 600;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
-.local-entry-nav a {
-  color: var(--accent-alt);
-  text-decoration: none;
+html[data-theme="light"] {
+  --bg: #f1f5f9;
+  --panel: #ffffff;
+  --border: #cbd5e1;
+  --text: #0f172a;
+  --muted: #64748b;
+  --accent: #16a34a;
+  --accent-alt: #0284c7;
+  --danger: #dc2626;
 }
 
-.local-entry-nav a:hover {
-  text-decoration: underline;
+html[data-theme="light"] body {
+  background: linear-gradient(180deg, #ecfdf5, #f8fafc);
+  color: var(--text);
 }
 
-.local-entry-sep {
-  margin: 0 0.35rem;
+html[data-theme="light"] .app-header p {
   color: var(--muted);
-  user-select: none;
+}
+
+html[data-theme="light"] .status-item,
+html[data-theme="light"] .chat-container,
+html[data-theme="light"] .controls {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+html[data-theme="light"] .message.bot {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .message.user {
+  background: #d1fae5;
+  color: #0f172a;
+}
+
+html[data-theme="light"] .lesson-illustration {
+  background: #f9fafb;
+  border-color: #cbd5e1;
+}
+
+html[data-theme="light"] #lessonSelect,
+html[data-theme="light"] input {
+  background: #f9fafb;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+html[data-theme="light"] button {
+  background: #e2e8f0;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+html[data-theme="light"] #sendButton {
+  background: var(--accent);
+  color: #fff;
+}
+
+html[data-theme="light"] .task-prompt {
+  background: #f1f5f9;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+html[data-theme="light"] .hint-word::after {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #cbd5e1;
 }

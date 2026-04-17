@@ -1,7 +1,10 @@
 import { LEARNING_ERROR_MESSAGES } from "../config/learningConstants";
+import { MVP_LESSON_SCENE_FALLBACK_BY_LESSON_CODE } from "../config/mvpLessonSceneFallback";
 import { HttpError } from "../middleware/errorHandler";
 import { courseRepository } from "../repositories/courseRepository";
 import { lessonRepository } from "../repositories/lessonRepository";
+import { lessonSceneRepository, type LessonDialogueSceneRecord } from "../repositories/lessonSceneRepository";
+import { logger } from "../utils/logger";
 
 export class LearningContentService {
   async getCoursesWithLessons(): Promise<
@@ -75,6 +78,12 @@ export class LearningContentService {
     courseId: string;
     words: Array<{ en: string; ua: string; ordinal: number }>;
     phrases: Array<{ en: string; ua: string; ordinal: number }>;
+    dialogueScenes: Array<{
+      dialogueIndex: number;
+      promptType: string | null;
+      svgPath: string;
+      altTextUa: string;
+    }>;
   }> {
     const lesson = await lessonRepository.findActiveLessonById(lessonId);
     if (!lesson) {
@@ -85,6 +94,33 @@ export class LearningContentService {
       lessonRepository.getPhrasesByLessonId(lessonId),
     ]);
 
+    let sceneRows: LessonDialogueSceneRecord[] = [];
+    try {
+      sceneRows = await lessonSceneRepository.getScenesByLessonId(lessonId);
+    } catch (error) {
+      logger.info("learning.lesson.scenes.db_read_failed", {
+        lessonId,
+        lessonCode: lesson.code,
+        message: error instanceof Error ? error.message : String(error),
+      });
+      sceneRows = [];
+    }
+
+    if (sceneRows.length === 0) {
+      const fallbackRows = MVP_LESSON_SCENE_FALLBACK_BY_LESSON_CODE[lesson.code];
+      if (fallbackRows && fallbackRows.length > 0) {
+        sceneRows = [...fallbackRows];
+        logger.info("learning.lesson.scenes.fallback_used", { lessonId, lessonCode: lesson.code });
+      }
+    }
+
+    const dialogueScenes = sceneRows.map((row) => ({
+      dialogueIndex: row.dialogue_index,
+      promptType: row.prompt_type === "" ? null : row.prompt_type,
+      svgPath: `./scenes/${row.asset_slug}.svg`,
+      altTextUa: row.alt_text_ua,
+    }));
+
     return {
       id: lesson.id,
       code: lesson.code,
@@ -94,6 +130,7 @@ export class LearningContentService {
       courseId: lesson.course_id,
       words: words.map((word) => ({ en: word.en_text, ua: word.ua_text, ordinal: word.ordinal })),
       phrases: phrases.map((phrase) => ({ en: phrase.en_text, ua: phrase.ua_text, ordinal: phrase.ordinal })),
+      dialogueScenes,
     };
   }
 }
