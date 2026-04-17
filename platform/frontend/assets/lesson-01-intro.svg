@@ -1,13 +1,31 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280">
-  <rect width="720" height="280" fill="#f8f5ee" rx="14"/>
-  <rect x="16" y="16" width="688" height="248" fill="#fffdf8" stroke="#d8cfbf" stroke-width="2" rx="10"/>
-  <text x="36" y="52" fill="#3f3a33" font-family="Georgia, serif" font-size="30">Lesson 1 • Introduction</text>
-  <line x1="36" y1="66" x2="684" y2="66" stroke="#c9bea9" stroke-width="2"/>
-  <circle cx="120" cy="124" r="22" fill="#5b7a5f"/>
-  <line x1="120" y1="146" x2="120" y2="198" stroke="#5b7a5f" stroke-width="7"/>
-  <line x1="120" y1="160" x2="90" y2="180" stroke="#5b7a5f" stroke-width="7"/>
-  <line x1="120" y1="160" x2="150" y2="140" stroke="#5b7a5f" stroke-width="7"/>
-  <text x="182" y="128" fill="#2f2a24" font-family="Georgia, serif" font-size="28">Hello! My name is Anna.</text>
-  <text x="182" y="164" fill="#6c6256" font-family="Georgia, serif" font-size="24">Pryvit! Mene zvaty Anna.</text>
-  <text x="36" y="236" fill="#6c6256" font-family="Georgia, serif" font-size="20">Phrase model: Hello/Hi, my name is ...</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Lesson 01 Intro</title>
+  <desc id="desc">Two students introduce themselves in class with a wise owl teacher.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1024"/>
+      <stop offset="100%" stop-color="#123b5a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="720" fill="url(#bg)"/>
+  <rect x="80" y="80" width="1040" height="560" rx="28" fill="#0f172a" stroke="#38bdf8" stroke-width="3"/>
+  <rect x="120" y="130" width="960" height="70" rx="14" fill="#1e293b"/>
+  <text x="150" y="175" font-family="Segoe UI, Arial, sans-serif" font-size="34" fill="#e2e8f0">Lesson 01: Greetings &amp; Introductions</text>
+  <circle cx="290" cy="390" r="110" fill="#34d399"/>
+  <circle cx="470" cy="390" r="110" fill="#f472b6"/>
+  <circle cx="262" cy="365" r="13" fill="#052e2b"/>
+  <circle cx="318" cy="365" r="13" fill="#052e2b"/>
+  <circle cx="442" cy="365" r="13" fill="#4a1036"/>
+  <circle cx="498" cy="365" r="13" fill="#4a1036"/>
+  <path d="M240 430 Q290 472 340 430" stroke="#fde68a" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <path d="M420 430 Q470 472 520 430" stroke="#fde68a" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <ellipse cx="860" cy="365" rx="130" ry="110" fill="#f8fafc" opacity="0.95"/>
+  <circle cx="812" cy="352" r="36" fill="#f59e0b"/>
+  <circle cx="908" cy="352" r="36" fill="#f59e0b"/>
+  <circle cx="812" cy="352" r="16" fill="#0f172a"/>
+  <circle cx="908" cy="352" r="16" fill="#0f172a"/>
+  <polygon points="860,376 835,410 885,410" fill="#f97316"/>
+  <text x="840" y="500" font-family="Segoe UI, Arial, sans-serif" font-size="30" fill="#0f172a">Owl</text>
+  <rect x="290" y="560" width="620" height="46" rx="10" fill="#1e293b"/>
+  <text x="325" y="592" font-family="Segoe UI, Arial, sans-serif" font-size="28" fill="#22c55e">Hello! My name is Anna. - Nice to meet you.</text>
 </svg>

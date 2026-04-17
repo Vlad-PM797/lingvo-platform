@@ -3,14 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="refresh" content="0;url=./platform/frontend/landing.html" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta http-equiv="refresh" content="0;url=./platform/frontend/index.html" />
   <title>Lingvo</title>
-  <link rel="canonical" href="./platform/frontend/landing.html" />
+  <link rel="canonical" href="./platform/frontend/index.html" />
 </head>
 <body>
-  <p>Перехід на <a href="./platform/frontend/landing.html">титульну сторінку</a>…</p>
+  <p>Перехід на <a href="./platform/frontend/index.html">титульну сторінку</a>…</p>
   <script>
-    window.location.replace("./platform/frontend/landing.html");
+    const target = new URL("./platform/frontend/index.html", window.location.href);
+    target.searchParams.set("v", Date.now().toString());
+    window.location.replace(target.toString());
   </script>
 </body>
 </html>

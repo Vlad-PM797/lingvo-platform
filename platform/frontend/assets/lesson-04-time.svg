@@ -1,13 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="720" height="280" viewBox="0 0 720 280">
-  <rect width="720" height="280" fill="#f8f5ee" rx="14"/>
-  <rect x="16" y="16" width="688" height="248" fill="#fffdf8" stroke="#d8cfbf" stroke-width="2" rx="10"/>
-  <text x="36" y="52" fill="#3f3a33" font-family="Georgia, serif" font-size="30">Lesson 4 • Time and plans</text>
-  <line x1="36" y1="66" x2="684" y2="66" stroke="#c9bea9" stroke-width="2"/>
-  <circle cx="132" cy="140" r="64" fill="#ece7db" stroke="#7f7669" stroke-width="5"/>
-  <line x1="132" y1="140" x2="132" y2="98" stroke="#50493f" stroke-width="6"/>
-  <line x1="132" y1="140" x2="165" y2="140" stroke="#50493f" stroke-width="6"/>
-  <text x="86" y="226" fill="#6c6256" font-family="Georgia, serif" font-size="22">08:00</text>
-  <text x="246" y="124" fill="#2f2a24" font-family="Georgia, serif" font-size="30">Are you free today?</text>
-  <text x="246" y="166" fill="#6c6256" font-family="Georgia, serif" font-size="24">I am busy now.</text>
-  <text x="36" y="250" fill="#6c6256" font-family="Georgia, serif" font-size="20">Use: now / today / tomorrow</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Lesson 04 Time</title>
+  <desc id="desc">Clock and daily routine time lesson with owl instructor.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#3b0764"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="720" fill="url(#bg)"/>
+  <rect x="80" y="80" width="1040" height="560" rx="28" fill="#111827" stroke="#f59e0b" stroke-width="3"/>
+  <text x="130" y="160" font-family="Segoe UI, Arial, sans-serif" font-size="34" fill="#f1f5f9">Lesson 04: Time &amp; Daily Routine</text>
+  <circle cx="340" cy="350" r="180" fill="#f8fafc" stroke="#94a3b8" stroke-width="6"/>
+  <line x1="340" y1="350" x2="340" y2="240" stroke="#0f172a" stroke-width="10" stroke-linecap="round"/>
+  <line x1="340" y1="350" x2="420" y2="390" stroke="#0f172a" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="340" cy="350" r="14" fill="#0f172a"/>
+  <text x="275" y="560" font-family="Segoe UI, Arial, sans-serif" font-size="32" fill="#f8fafc">07:20 AM</text>
+  <rect x="580" y="230" width="420" height="120" rx="16" fill="#1e293b"/>
+  <text x="610" y="282" font-family="Segoe UI, Arial, sans-serif" font-size="30" fill="#22c55e">What time is it?</text>
+  <text x="610" y="322" font-family="Segoe UI, Arial, sans-serif" font-size="30" fill="#93c5fd">It is seven twenty.</text>
+  <ellipse cx="860" cy="430" rx="130" ry="104" fill="#f8fafc"/>
+  <circle cx="818" cy="414" r="32" fill="#f59e0b"/><circle cx="903" cy="414" r="32" fill="#f59e0b"/>
+  <circle cx="818" cy="414" r="14" fill="#0f172a"/><circle cx="903" cy="414" r="14" fill="#0f172a"/>
+  <polygon points="860,436 838,468 882,468" fill="#ea580c"/>
+  <rect x="120" y="575" width="940" height="50" rx="10" fill="#1e293b"/>
+  <text x="150" y="608" font-family="Segoe UI, Arial, sans-serif" font-size="28" fill="#fbbf24">I wake up at seven. I go to school at eight.</text>
 </svg>

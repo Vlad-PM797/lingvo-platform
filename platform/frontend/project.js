@@ -117,6 +117,17 @@ function renderLessonOptions(courseId) {
     option.textContent = `${lesson.orderInCourse ?? lesson.ordinal ?? 0}. ${lesson.title}`;
     PROJECT_ELEMENTS.lessonSelect.appendChild(option);
   }
+  try {
+    if (window.LingvoTopicLessonVisuals && typeof window.LingvoTopicLessonVisuals.apply === "function") {
+      const opt = PROJECT_ELEMENTS.lessonSelect.options[PROJECT_ELEMENTS.lessonSelect.selectedIndex];
+      const text = String(opt?.textContent || "")
+        .replace(/^\s*\d+\.[\s)]+/i, "")
+        .trim();
+      window.LingvoTopicLessonVisuals.apply({ title: text, code: "" });
+    }
+  } catch (error) {
+    logError("project.topic_visuals.after_render_lessons", error, { courseId });
+  }
 }
 
 async function loadCourses() {
@@ -199,29 +210,40 @@ function showLessonScenesEmptyHelp(lesson) {
   mount.appendChild(paragraph);
 }
 
+function resolveLessonScenesWithFrontendFallback(lesson) {
+  const scenesFromApi = Array.isArray(lesson?.dialogueScenes) ? lesson.dialogueScenes : [];
+  if (scenesFromApi.length > 0) {
+    return scenesFromApi;
+  }
+  const lessonCode = String(lesson?.code || "");
+  const catalog = window.LingvoLessonScenes;
+  if (catalog && typeof catalog.getByLessonCode === "function") {
+    return catalog.getByLessonCode(lessonCode);
+  }
+  return [];
+}
+
 function renderLessonScenes(lesson) {
   const mount = PROJECT_ELEMENTS.lessonSceneMount;
   if (!mount) {
     return;
   }
-  const scenes = Array.isArray(lesson.dialogueScenes) ? lesson.dialogueScenes : [];
+  const scenes = resolveLessonScenesWithFrontendFallback(lesson);
   const phrases = Array.isArray(lesson.phrases) ? lesson.phrases : [];
   if (scenes.length === 0) {
+    showLessonScenesEmptyHelp(lesson);
     return;
   }
-  const sceneByIndex = new Map(scenes.map((scene) => [Number(scene.dialogueIndex), scene]));
+  const phraseByIndex = new Map(phrases.map((phrase) => [Number(phrase.ordinal), phrase]));
   mount.hidden = false;
   mount.innerHTML = "";
   const heading = document.createElement("h3");
   heading.className = "lesson-scene-heading";
   heading.textContent = "Сцени до діалогів (MVP)";
   mount.appendChild(heading);
-  for (const phrase of phrases) {
-    const ordinal = Number(phrase.ordinal);
-    const scene = sceneByIndex.get(ordinal);
-    if (!scene) {
-      continue;
-    }
+  for (const scene of scenes) {
+    const ordinal = Number(scene.dialogueIndex);
+    const phrase = phraseByIndex.get(ordinal);
     const card = document.createElement("article");
     card.className = "lesson-scene-card";
     const figure = document.createElement("div");
@@ -237,10 +259,10 @@ function renderLessonScenes(lesson) {
     caption.className = "lesson-scene-caption";
     const enLine = document.createElement("p");
     enLine.className = "lesson-scene-en";
-    enLine.textContent = String(phrase.en || "");
+    enLine.textContent = String(phrase?.en || `Scene #${ordinal}`);
     const uaLine = document.createElement("p");
     uaLine.className = "lesson-scene-ua";
-    uaLine.textContent = String(phrase.ua || "");
+    uaLine.textContent = String(phrase?.ua || scene.altTextUa || "");
     caption.appendChild(enLine);
     caption.appendChild(uaLine);
     card.appendChild(figure);
@@ -253,6 +275,13 @@ async function openLesson() {
   const lessonId = PROJECT_ELEMENTS.lessonSelect.value;
   if (!lessonId) {
     clearLessonSceneMount();
+    try {
+      if (window.LingvoTopicLessonVisuals && typeof window.LingvoTopicLessonVisuals.clear === "function") {
+        window.LingvoTopicLessonVisuals.clear();
+      }
+    } catch (error) {
+      logError("project.topic_visuals.clear", error);
+    }
     PROJECT_ELEMENTS.lessonOutput.textContent = PROJECT_MESSAGES.lessonMissing;
     return;
   }
@@ -281,15 +310,27 @@ async function openLesson() {
       `Фрази (${phrases.length}):`,
       phrasesPreview || "(немає)",
     ].join("\n");
-    const scenes = Array.isArray(lesson.dialogueScenes) ? lesson.dialogueScenes : [];
-    if (scenes.length > 0) {
-      renderLessonScenes(lesson);
-    } else {
-      showLessonScenesEmptyHelp(lesson);
+    const scenes = resolveLessonScenesWithFrontendFallback(lesson);
+    renderLessonScenes({ ...lesson, dialogueScenes: scenes });
+    try {
+      window.dispatchEvent(
+        new CustomEvent("lingvo-lesson-context", {
+          detail: { title: lesson.title || "", code: lesson.code || "" },
+        }),
+      );
+    } catch (error) {
+      logError("project.lesson.context_event", error, { lessonId });
     }
   } catch (error) {
     logError("project.lesson.open.failed", error, { lessonId });
     clearLessonSceneMount();
+    try {
+      if (window.LingvoTopicLessonVisuals && typeof window.LingvoTopicLessonVisuals.clear === "function") {
+        window.LingvoTopicLessonVisuals.clear();
+      }
+    } catch (clearError) {
+      logError("project.topic_visuals.clear_after_error", clearError);
+    }
     PROJECT_ELEMENTS.lessonOutput.textContent = `Помилка відкриття уроку:\n${error instanceof Error ? error.message : String(error)}`;
   }
 }

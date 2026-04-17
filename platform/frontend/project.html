@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lingvo Project</title>
   <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./topic-lesson-visuals.css" />
 </head>
 <body>
   <header class="portal-top">
@@ -38,6 +39,27 @@
       <label class="label" for="lessonSelect">Урок</label>
       <select id="lessonSelect"></select>
 
+      <div class="project-topic-tools" aria-label="Режим оформлення уроку">
+        <label class="topic-visual-label" for="topicFormatSelect">
+          Вигляд за темою:
+          <select id="topicFormatSelect" class="trainer-variant-select">
+            <option value="auto">Авто</option>
+            <option value="vocab">Словник / числа</option>
+            <option value="commands">Команди / процедури</option>
+            <option value="dialogue">Діалог / фрази</option>
+          </select>
+        </label>
+        <label class="topic-visual-label" for="topicPaletteSelect">
+          Палітра:
+          <select id="topicPaletteSelect" class="trainer-variant-select">
+            <option value="auto">Авто (до теми)</option>
+            <option value="pastel">Pastel</option>
+            <option value="vibrant">Vibrant</option>
+            <option value="monochrome">Monochrome</option>
+          </select>
+        </label>
+      </div>
+
       <div class="actions-row">
         <button id="openLessonButton">Відкрити урок</button>
       </div>
@@ -62,6 +84,8 @@
   </main>
 
   <script src="./theme.js"></script>
+  <script src="./topicLessonVisuals.js"></script>
+  <script src="./lessonScenes.js"></script>
   <script src="./project.js"></script>
 </body>
 </html>
