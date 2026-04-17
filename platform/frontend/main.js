@@ -257,6 +257,43 @@ async function handleOpenLesson() {
   }
 }
 
+function applyPortalBackendUiMode() {
+  try {
+    const publicUrl = normalizeBaseUrl(
+      typeof window !== "undefined" && window.LINGVO_PUBLIC_BACKEND_URL
+        ? String(window.LINGVO_PUBLIC_BACKEND_URL)
+        : "",
+    );
+    const advanced = new URLSearchParams(window.location.search).has("advanced");
+    const card = document.getElementById("portalBackendCard");
+    const summaryCard = document.getElementById("portalBackendSummaryCard");
+    const summaryText = document.getElementById("portalBackendSummaryText");
+    if (!elements.baseUrl) {
+      return;
+    }
+    if (publicUrl && !advanced) {
+      elements.baseUrl.value = publicUrl;
+      window.localStorage.setItem(STORAGE_KEYS.backendUrl, publicUrl);
+      if (card) {
+        card.hidden = true;
+      }
+      if (summaryCard && summaryText) {
+        summaryText.textContent = `Підключення до сервера: ${publicUrl}`;
+        summaryCard.hidden = false;
+      }
+    } else {
+      if (card) {
+        card.hidden = false;
+      }
+      if (summaryCard) {
+        summaryCard.hidden = true;
+      }
+    }
+  } catch (error) {
+    logError("portal.backend_ui_mode.failed", error);
+  }
+}
+
 function bootstrap() {
   const savedBackendUrl = window.localStorage.getItem(STORAGE_KEYS.backendUrl);
   if (savedBackendUrl) {
@@ -282,6 +319,8 @@ function bootstrap() {
   elements.openLessonButton.addEventListener("click", () => {
     void handleOpenLesson();
   });
+
+  applyPortalBackendUiMode();
 }
 
 bootstrap();

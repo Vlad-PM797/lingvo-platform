@@ -19,7 +19,7 @@
     </button>
   </header>
   <main class="layout">
-    <section class="card">
+    <section class="card" id="portalBackendCard">
       <h1>Lingvo: доступ користувача</h1>
       <p class="hint">
         Вкажи публічний URL бекенду (наприклад, <code>https://lingvo-api.onrender.com</code>),
@@ -27,6 +27,13 @@
       </p>
       <label class="label" for="baseUrl">Backend URL</label>
       <input id="baseUrl" type="url" placeholder="https://your-backend-domain.com" />
+    </section>
+
+    <section class="card" id="portalBackendSummaryCard" hidden>
+      <p class="hint" id="portalBackendSummaryText"></p>
+      <p class="hint">
+        Потрібен інший API? <a class="portal-home-link" href="./portal.html?advanced=1">Показати поле Backend URL</a>
+      </p>
     </section>
 
     <section class="card">
