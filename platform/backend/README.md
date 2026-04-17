@@ -39,7 +39,7 @@ Node.js + TypeScript + Express backend for Lingvo platform stage 1-6.
 ## Setup
 1. Install Node.js 20+.
 2. Copy `.env.example` to `.env` and fill values.
-   - For CORS policy set `CORS_ALLOWED_ORIGINS` (comma-separated origins or `*` for all).
+   - For CORS set `CORS_ALLOWED_ORIGINS` (comma-separated origins or `*`). Для GitHub Pages проєкту обов’язково додай **`https://vlad-pm797.github.io`** (див. `.env.production.example` та `platform/render.yaml`).
 3. Install dependencies:
    - `npm install`
 4. Run migrations in order:

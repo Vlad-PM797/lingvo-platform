@@ -26,5 +26,6 @@
 
 ### Якщо в браузері «Failed to fetch» зі сторінки на github.io
 
-- У **Render** (або де хоститься API) для **`CORS_ALLOWED_ORIGINS`** додай origin сторінки: **`https://vlad-pm797.github.io`** (або тимчасово **`*`**). Без цього браузер блокує `fetch` на інший домен.
-- У бекенді вже виставлено **`Cross-Origin-Resource-Policy: cross-origin`** (Helmet), щоб відповіді не різались для сторонніх фронтів — **перезбери й задеплой бекенд** після оновлення репозиторію.
+- У **`platform/render.yaml`** для сервісу вже задано дефолтне **`CORS_ALLOWED_ORIGINS`** (GitHub Pages + локальні origin). Після push: у **Render → Environment** переконайся, що змінна **не перезаписана** старим значенням без `github.io`; за потреби вручну встав те саме значення або натисни **Sync** з Blueprint.
+- У бекенді виставлено **`Cross-Origin-Resource-Policy: cross-origin`** (Helmet) — **обов’язково задеплой останній бекенд** з репозиторію.
+- Тимчасово для діагностики можна поставити **`CORS_ALLOWED_ORIGINS=*`** (лише для тесту).
