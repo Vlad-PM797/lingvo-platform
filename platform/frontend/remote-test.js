@@ -118,7 +118,18 @@ async function performRemoteLogin() {
     }, 600);
   } catch (error) {
     logRemoteTestError("remote_test.login.failed", error, { email });
-    setRemoteTestOutput(`Помилка входу:\n${error instanceof Error ? error.message : String(error)}`, "warn");
+    const raw = error instanceof Error ? error.message : String(error);
+    let hint = raw;
+    if (raw === "Failed to fetch" || (typeof TypeError !== "undefined" && error instanceof TypeError)) {
+      hint = [
+        raw,
+        "",
+        "Найчастіше: бекенд блокує запити з GitHub Pages (CORS) або Helmet надсилав Cross-Origin-Resource-Policy: same-origin.",
+        "На Render у змінній CORS_ALLOWED_ORIGINS додай https://vlad-pm797.github.io (або *).",
+        "Перезапусти бекенд після оновлення коду (CORP cross-origin у app.ts).",
+      ].join("\n");
+    }
+    setRemoteTestOutput(`Помилка входу:\n${hint}`, "warn");
   }
 }
 
