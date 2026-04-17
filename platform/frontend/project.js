@@ -47,11 +47,18 @@ function normalizeBaseUrl(rawValue) {
 }
 
 function getBaseUrlOrThrow() {
-  const value = normalizeBaseUrl(PROJECT_ELEMENTS.baseUrl.value);
-  if (!value) {
-    throw new Error("Вкажи Backend URL.");
+  const fromInput = normalizeBaseUrl(PROJECT_ELEMENTS.baseUrl.value);
+  if (fromInput) {
+    return fromInput;
   }
-  return value;
+  const fromStorage = normalizeBaseUrl(window.localStorage.getItem(STORAGE_KEYS.backendUrl));
+  if (fromStorage) {
+    return fromStorage;
+  }
+  if (typeof window !== "undefined" && window.LINGVO_PUBLIC_BACKEND_URL) {
+    return normalizeBaseUrl(String(window.LINGVO_PUBLIC_BACKEND_URL));
+  }
+  throw new Error("Вкажи Backend URL або задай LINGVO_PUBLIC_BACKEND_URL у lingvoPublicConfig.js.");
 }
 
 function getAccessTokenOrThrow() {
@@ -401,18 +408,23 @@ async function loadProgress() {
 function logout() {
   window.localStorage.removeItem(STORAGE_KEYS.accessToken);
   window.localStorage.removeItem(STORAGE_KEYS.refreshToken);
-  window.location.href = "./portal.html";
+  window.location.href = "./remote-test.html";
 }
 
 function bootstrap() {
   const savedBackendUrl = window.localStorage.getItem(STORAGE_KEYS.backendUrl);
   if (savedBackendUrl) {
     PROJECT_ELEMENTS.baseUrl.value = savedBackendUrl;
+  } else if (typeof window !== "undefined" && window.LINGVO_PUBLIC_BACKEND_URL) {
+    const pub = normalizeBaseUrl(String(window.LINGVO_PUBLIC_BACKEND_URL));
+    if (pub) {
+      PROJECT_ELEMENTS.baseUrl.value = pub;
+    }
   }
 
   const accessToken = window.localStorage.getItem(STORAGE_KEYS.accessToken);
   if (!accessToken) {
-    window.location.href = "./portal.html";
+    window.location.href = "./remote-test.html";
     return;
   }
 

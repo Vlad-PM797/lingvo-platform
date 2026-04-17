@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Lingvo — вхід для тестувальників</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="portal-top">
+      <nav class="portal-nav-cluster" aria-label="Розділи">
+        <a class="portal-home-link" href="./landing.html">Головна</a>
+        <a class="portal-home-link" href="./trainer.html">Тренажер</a>
+        <a class="portal-home-link" href="./project.html">Платформа</a>
+      </nav>
+      <button type="button" class="portal-theme-toggle" id="portalThemeToggle" aria-pressed="false">
+        <span aria-hidden="true">◐</span>
+        <span id="portalThemeToggleLabel">Світла</span>
+      </button>
+    </header>
+    <main class="layout">
+      <section class="card" id="remoteTestBlocked" hidden>
+        <h1>Доступ за запрошенням</h1>
+        <p class="hint">
+          Відкрий посилання з коректним параметром <code>?invite=…</code>, який тобі надіслав адміністратор.
+        </p>
+      </section>
+
+      <section class="card" id="remoteTestForm">
+        <h1>Вхід для тестувальників</h1>
+        <p class="hint">
+          Використовуй посилання, яке тобі надіслали. Потрібні лише email і пароль облікового запису на сервері Lingvo.
+        </p>
+        <p class="hint">
+          Повний портал (реєстрація та поле Backend URL): <a class="portal-home-link" href="./portal.html">portal.html</a>
+        </p>
+        <label class="label" for="remoteLoginEmail">Email</label>
+        <input id="remoteLoginEmail" type="email" autocomplete="username" placeholder="user@example.com" />
+        <label class="label" for="remoteLoginPassword">Пароль</label>
+        <input id="remoteLoginPassword" type="password" autocomplete="current-password" placeholder="********" />
+        <button type="button" id="remoteLoginButton">Увійти</button>
+        <p class="hint" id="remoteBackendHint"></p>
+        <h2>Результат</h2>
+        <pre id="remoteTestOutput">Очікування входу.</pre>
+      </section>
+    </main>
+
+    <script src="./theme.js"></script>
+    <script src="./lingvoPublicConfig.js"></script>
+    <script src="./remote-test.js"></script>
+  </body>
+</html>

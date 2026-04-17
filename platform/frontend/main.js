@@ -45,10 +45,25 @@ function normalizeBaseUrl(rawValue) {
   return String(rawValue || "").trim().replace(/\/+$/, "");
 }
 
+function resolveBackendUrlForPortal() {
+  const fromInput = elements.baseUrl ? normalizeBaseUrl(elements.baseUrl.value) : "";
+  if (fromInput) {
+    return fromInput;
+  }
+  const fromStorage = normalizeBaseUrl(window.localStorage.getItem(STORAGE_KEYS.backendUrl));
+  if (fromStorage) {
+    return fromStorage;
+  }
+  if (typeof window !== "undefined" && window.LINGVO_PUBLIC_BACKEND_URL) {
+    return normalizeBaseUrl(String(window.LINGVO_PUBLIC_BACKEND_URL));
+  }
+  return "";
+}
+
 function getBaseUrlOrThrow() {
-  const url = normalizeBaseUrl(elements.baseUrl.value);
+  const url = resolveBackendUrlForPortal();
   if (!url) {
-    throw new Error("Вкажи Backend URL.");
+    throw new Error("Вкажи Backend URL або задай LINGVO_PUBLIC_BACKEND_URL у lingvoPublicConfig.js.");
   }
   return url;
 }
@@ -137,7 +152,7 @@ async function handleLogin() {
     setOutput(`Вхід успішний. Токени збережено локально.\n${JSON.stringify(result, null, 2)}`, "ok");
     elements.learningOutput.textContent = "Вхід успішний. Натисни \"Завантажити курси\".";
     window.setTimeout(() => {
-      void redirectToProjectPage();
+      redirectToProjectPage();
     }, 700);
   } catch (error) {
     logError("auth.login.failed", error);
@@ -145,19 +160,8 @@ async function handleLogin() {
   }
 }
 
-async function redirectToProjectPage() {
-  const primaryProjectPath = "/trainer";
-  const fallbackProjectPath = "/trainer.html";
-  try {
-    const response = await fetch(primaryProjectPath, {
-      method: "HEAD",
-      cache: "no-store",
-    });
-    window.location.href = response.ok ? primaryProjectPath : fallbackProjectPath;
-  } catch (error) {
-    logError("auth.login.redirect_probe.failed", error);
-    window.location.href = fallbackProjectPath;
-  }
+function redirectToProjectPage() {
+  window.location.href = "./project.html";
 }
 
 function renderCourseOptions() {
@@ -257,6 +261,8 @@ function bootstrap() {
   const savedBackendUrl = window.localStorage.getItem(STORAGE_KEYS.backendUrl);
   if (savedBackendUrl) {
     elements.baseUrl.value = savedBackendUrl;
+  } else if (window.LINGVO_PUBLIC_BACKEND_URL) {
+    elements.baseUrl.value = normalizeBaseUrl(String(window.LINGVO_PUBLIC_BACKEND_URL));
   }
 
   elements.baseUrl.addEventListener("change", () => {
