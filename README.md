@@ -6,9 +6,10 @@
 
 ## Публічний перегляд (GitHub Pages)
 
-1. У репозиторії: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-2. Після push у гілку **`main`** запускається workflow **Deploy frontend to GitHub Pages** (каталог `platform/frontend`).
-3. Після успішного запуску workflow посилання будуть такі (репозиторій `Vlad-PM797/lingvo-platform`):  
+1. У **Settings → Actions → General → Workflow permissions** увімкни **Read and write** (щоб workflow міг пушити гілку `gh-pages`).
+2. Зроби push у **`main`** (або вручну запусти workflow **Deploy frontend to gh-pages** у вкладці Actions).
+3. Коли workflow завершиться зеленим: **Settings → Pages → Build and deployment → Source: Deploy from a branch** → гілка **`gh-pages`**, папка **`/(root)`**, Save.
+4. Через 1–2 хв посилання будуть такі (репозиторій `Vlad-PM797/lingvo-platform`):  
    - титул: `https://vlad-pm797.github.io/lingvo-platform/landing.html`  
    - тренажер: `https://vlad-pm797.github.io/lingvo-platform/trainer.html`  
    - **вхід для тестувальників** (лише email + пароль, без ручного вводу API): `https://vlad-pm797.github.io/lingvo-platform/remote-test.html`  
