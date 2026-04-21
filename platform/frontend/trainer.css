@@ -486,6 +486,17 @@ body.hints-disabled .hint-word::after {
   }
 }
 
+/* До ~10" екранів ховаємо стрічку сцен повністю */
+@media (max-width: 1024px) {
+  .trainer-main-stage {
+    grid-template-columns: 1fr;
+  }
+
+  .trainer-scene-rail.trainer-scene-mount {
+    display: none !important;
+  }
+}
+
 @media (max-width: 720px) {
   .trainer-main-stage {
     grid-template-columns: 1fr;
