@@ -25,3 +25,30 @@
 - [x] Topic mapping artifacts committed in repo
 - [x] Unique lesson illustrations visible in trainer/pages
 - [x] No linter/XML errors after changes
+
+# Task: Tester Activity Monitoring (who/where/how long)
+
+## Implementation Details
+- Add backend activity tracking table keyed by user + client fingerprint (IP + User-Agent) + day.
+- Record activity on successful login and on authorized learning/admin requests.
+- Add admin endpoint returning aggregated tester activity with duration and last-seen data.
+- Add UI block in `project.html` so admin can fetch and view activity.
+
+## Subtasks
+- [x] Add DB migration for tester activity table + indexes
+- [x] Implement repository/service/middleware for activity touch + aggregate query
+- [x] Expose admin API endpoint `GET /admin/testers/activity`
+- [x] Add frontend viewer in `project.html` + `project.js`
+- [x] Run typecheck/lint style checks and validate flow
+
+## Testing Plan
+- [x] Run backend typecheck
+- [ ] Run migration script
+- [ ] Verify login/learning requests update activity rows
+- [ ] Verify admin endpoint shows user/email, IP/origin, duration and request counts
+- [x] Verify frontend block loads data for admin and shows 403 hint for non-admin
+
+## Verification
+- [x] Backend builds without errors
+- [ ] Endpoint returns expected data shape
+- [ ] Frontend viewer renders and refreshes

@@ -11,6 +11,8 @@ const PROJECT_ELEMENTS = {
   answerInput: document.getElementById("answerInput"),
   submitAttemptButton: document.getElementById("submitAttemptButton"),
   attemptOutput: document.getElementById("attemptOutput"),
+  loadTesterActivityButton: document.getElementById("loadTesterActivityButton"),
+  testerActivityOutput: document.getElementById("testerActivityOutput"),
 };
 
 const STORAGE_KEYS = Object.freeze({
@@ -405,6 +407,55 @@ async function loadProgress() {
   }
 }
 
+function formatDuration(totalSeconds) {
+  const safeSeconds = Math.max(0, Number(totalSeconds) || 0);
+  const hours = Math.floor(safeSeconds / 3600);
+  const minutes = Math.floor((safeSeconds % 3600) / 60);
+  const seconds = safeSeconds % 60;
+  return `${hours}г ${minutes}хв ${seconds}с`;
+}
+
+async function loadTesterActivity() {
+  try {
+    logInfo("project.testers_activity.load.attempt");
+    const payload = await requestAuthJson("/admin/testers/activity?hours=168&limit=150");
+    const rows = Array.isArray(payload.rows) ? payload.rows : [];
+    if (rows.length === 0) {
+      PROJECT_ELEMENTS.testerActivityOutput.textContent = "За обраний період активність не знайдена.";
+      return;
+    }
+    const lines = rows.map((row, index) => {
+      const shortUa = String(row.userAgent || "").slice(0, 80);
+      return [
+        `${index + 1}. ${row.email}`,
+        `   userId: ${row.userId}`,
+        `   IP: ${row.ipAddress}`,
+        `   Origin: ${row.origin || "(немає)"}`,
+        `   User-Agent: ${shortUa}${String(row.userAgent || "").length > 80 ? "..." : ""}`,
+        `   Запитів: ${row.totalRequests}`,
+        `   Період: ${row.firstSeenAt} -> ${row.lastSeenAt}`,
+        `   Тривалість: ${formatDuration(row.durationSeconds)}`,
+      ].join("\n");
+    });
+    PROJECT_ELEMENTS.testerActivityOutput.textContent = [
+      `Період звіту: останні ${payload.hours || 168} год`,
+      `Рядків: ${rows.length}`,
+      "",
+      ...lines,
+    ].join("\n");
+    logInfo("project.testers_activity.load.success", { count: rows.length });
+  } catch (error) {
+    logError("project.testers_activity.load.failed", error);
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.includes("HTTP 403")) {
+      PROJECT_ELEMENTS.testerActivityOutput.textContent =
+        "Немає доступу. Цей блок доступний лише для admin-користувача.";
+      return;
+    }
+    PROJECT_ELEMENTS.testerActivityOutput.textContent = `Помилка завантаження активності:\n${message}`;
+  }
+}
+
 function logout() {
   window.localStorage.removeItem(STORAGE_KEYS.accessToken);
   window.localStorage.removeItem(STORAGE_KEYS.refreshToken);
@@ -451,6 +502,9 @@ function bootstrap() {
   });
   PROJECT_ELEMENTS.submitAttemptButton.addEventListener("click", () => {
     void submitAttempt();
+  });
+  PROJECT_ELEMENTS.loadTesterActivityButton.addEventListener("click", () => {
+    void loadTesterActivity();
   });
 
   void loadCourses();

@@ -1,4 +1,5 @@
 import { adminRepository } from "../repositories/adminRepository";
+import { testerActivityRepository } from "../repositories/testerActivityRepository";
 
 export class AdminService {
   async createCourse(adminUserId: string, input: { code: string; title: string; description?: string; isActive?: boolean }) {
@@ -93,6 +94,24 @@ export class AdminService {
 
   async deletePhrase(adminUserId: string, phraseId: string): Promise<void> {
     await adminRepository.deletePhrase(adminUserId, phraseId);
+  }
+
+  async getTestersActivity(_adminUserId: string, input: { hours: number; limit: number }) {
+    const rows = await testerActivityRepository.getActivityReport(input.hours, input.limit);
+    return {
+      hours: input.hours,
+      rows: rows.map((row) => ({
+        userId: row.user_id,
+        email: row.email,
+        ipAddress: row.ip_address,
+        origin: row.origin,
+        userAgent: row.user_agent,
+        firstSeenAt: row.first_seen_at,
+        lastSeenAt: row.last_seen_at,
+        totalRequests: row.total_requests,
+        durationSeconds: row.duration_seconds,
+      })),
+    };
   }
 }
 

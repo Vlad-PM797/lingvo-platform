@@ -66,3 +66,8 @@ export const courseIdParamSchema = z.object({ courseId: UUID_SCHEMA });
 export const lessonIdParamSchema = z.object({ lessonId: UUID_SCHEMA });
 export const wordIdParamSchema = z.object({ wordId: UUID_SCHEMA });
 export const phraseIdParamSchema = z.object({ phraseId: UUID_SCHEMA });
+
+export const testersActivityQuerySchema = z.object({
+  hours: z.coerce.number().int().min(1).max(24 * 30).default(24 * 7),
+  limit: z.coerce.number().int().min(1).max(500).default(100),
+});
