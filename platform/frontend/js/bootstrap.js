@@ -10,14 +10,14 @@ export function resolveTrainerPageCopy() {
     return {
       title: "Lingvo - Italian from Zero",
       heading: "Lingvo: Italian from Zero",
-      subtitle: "РўСЂРµРЅР°Р¶РµСЂ СЃРїС–Р»РєСѓРІР°РЅРЅСЏ С–С‚Р°Р»С–Р№СЃСЊРєРѕСЋ Р· РЅСѓР»СЏ",
+      subtitle: "Тренажер спілкування італійською з нуля",
     };
   }
 
   return {
     title: "Lingvo - English from Zero",
     heading: "Lingvo: English from Zero",
-    subtitle: "РўСЂРµРЅР°Р¶РµСЂ СЃРїС–Р»РєСѓРІР°РЅРЅСЏ Р°РЅРіР»С–Р№СЃСЊРєРѕСЋ Р· РЅСѓР»СЏ",
+    subtitle: "Тренажер спілкування англійською з нуля",
   };
 }
 

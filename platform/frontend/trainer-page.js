@@ -44,13 +44,13 @@
     const selectedOption = lessonSelect.options[lessonSelect.selectedIndex];
     const label = String(selectedOption?.textContent || "").toLowerCase();
     const value = String(lessonSelect.value || "").toLowerCase();
-    if (label.includes("СѓСЂРѕРє 1") || label.includes("lesson 1") || label.includes("basics")) {
+    if (label.includes("урок 1") || label.includes("lesson 1") || label.includes("basics")) {
       return "lesson1";
     }
     if (label.includes("basi 01") || value.includes("it-a0-basics-01")) {
       return "lesson1";
     }
-    if (label.includes("СѓСЂРѕРє 2") || label.includes("lesson 2")) {
+    if (label.includes("урок 2") || label.includes("lesson 2")) {
       return "lesson2";
     }
     if (label.includes("lezione 02") || value.includes("it-a0-basics-02")) {
@@ -72,7 +72,7 @@
     const openButton = document.createElement("button");
     openButton.type = "button";
     openButton.className = "trainer-scene-open";
-    openButton.setAttribute("aria-label", `Р’С–РґРєСЂРёС‚Рё СЃС†РµРЅСѓ: ${scene.alt}`);
+    openButton.setAttribute("aria-label", `Відкрити сцену: ${scene.alt}`);
 
     const image = document.createElement("img");
     image.className = "trainer-scene-image";
@@ -106,7 +106,7 @@
   function createSceneHeading(sceneMount) {
     const heading = document.createElement("h3");
     heading.className = "trainer-scene-heading";
-    heading.textContent = "РЎС†РµРЅРё РґРѕ РґС–Р°Р»РѕРіС–РІ (MVP)";
+    heading.textContent = "Сцени до діалогів (MVP)";
 
     const nav = document.createElement("div");
     nav.className = "trainer-scene-nav";
@@ -114,14 +114,14 @@
     const prevButton = document.createElement("button");
     prevButton.type = "button";
     prevButton.className = "trainer-scene-nav-btn";
-    prevButton.textContent = "в†‘";
-    prevButton.setAttribute("aria-label", "РџСЂРѕРєСЂСѓС‚РёС‚Рё СЃС†РµРЅРё РІРіРѕСЂСѓ");
+    prevButton.textContent = "↑";
+    prevButton.setAttribute("aria-label", "Прокрутити сцени вгору");
 
     const nextButton = document.createElement("button");
     nextButton.type = "button";
     nextButton.className = "trainer-scene-nav-btn";
-    nextButton.textContent = "в†“";
-    nextButton.setAttribute("aria-label", "РџСЂРѕРєСЂСѓС‚РёС‚Рё СЃС†РµРЅРё РІРЅРёР·");
+    nextButton.textContent = "↓";
+    nextButton.setAttribute("aria-label", "Прокрутити сцени вниз");
 
     nav.appendChild(prevButton);
     nav.appendChild(nextButton);

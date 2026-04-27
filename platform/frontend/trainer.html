@@ -10,30 +10,30 @@
   </head>
   <body>
     <header class="portal-top portal-top--trainer">
-      <nav class="portal-nav-cluster" aria-label="Р РѕР·РґС–Р»Рё">
-        <a class="portal-home-link" href="./landing.html">Р“РѕР»РѕРІРЅР°</a>
-        <a class="portal-home-link" href="./portal.html">РџРѕСЂС‚Р°Р»</a>
-        <a class="portal-home-link" href="./project.html">РџР»Р°С‚С„РѕСЂРјР°</a>
+      <nav class="portal-nav-cluster" aria-label="Розділи">
+        <a class="portal-home-link" href="./landing.html">Головна</a>
+        <a class="portal-home-link" href="./portal.html">Портал</a>
+        <a class="portal-home-link" href="./project.html">Платформа</a>
       </nav>
       <button type="button" class="portal-theme-toggle" id="portalThemeToggle" aria-pressed="false">
-        <span aria-hidden="true">в—ђ</span>
-        <span id="portalThemeToggleLabel">РЎРІС–С‚Р»Р°</span>
+        <span aria-hidden="true">◐</span>
+        <span id="portalThemeToggleLabel">Світла</span>
       </button>
     </header>
     <main class="app-shell">
       <header class="app-header">
         <h1>Lingvo: Language from Zero</h1>
-        <p>РўСЂРµРЅР°Р¶РµСЂ СЃРїС–Р»РєСѓРІР°РЅРЅСЏ Р· РЅСѓР»СЏ</p>
+        <p>Тренажер спілкування з нуля</p>
         <div class="trainer-top-tools">
-          <div class="trainer-owl-badge" role="img" aria-label="РЎРѕРІР°">
-            <span class="trainer-owl-icon" aria-hidden="true">рџ¦‰</span>
+          <div class="trainer-owl-badge" role="img" aria-label="Сова">
+            <span class="trainer-owl-icon" aria-hidden="true">🦉</span>
           </div>
           <label class="trainer-variant-label" for="trainerLearningLanguageSelect">
-            РњРѕРІР° РЅР°РІС‡Р°РЅРЅСЏ:
+            Мова навчання:
             <select id="trainerLearningLanguageSelect" class="trainer-variant-select" data-learning-language-select></select>
           </label>
           <label class="trainer-variant-label" for="trainerVariantSelect">
-            РЎС‚РёР»СЊ С‚СЂРµРЅР°Р¶РµСЂР°:
+            Стиль тренажера:
             <select id="trainerVariantSelect" class="trainer-variant-select">
               <option value="neon-mentor">Neon Mentor</option>
               <option value="command-center">Command Center Owl</option>
@@ -43,20 +43,20 @@
             </select>
           </label>
         </div>
-        <div class="trainer-topic-tools" aria-label="Р РµР¶РёРј РѕС„РѕСЂРјР»РµРЅРЅСЏ СѓСЂРѕРєСѓ">
+        <div class="trainer-topic-tools" aria-label="Режим оформлення уроку">
           <label class="topic-visual-label" for="topicFormatSelect">
-            Р’РёРіР»СЏРґ Р·Р° С‚РµРјРѕСЋ:
+            Вигляд за темою:
             <select id="topicFormatSelect" class="trainer-variant-select">
-              <option value="auto">РђРІС‚Рѕ</option>
-              <option value="vocab">РЎР»РѕРІРЅРёРє / С‡РёСЃР»Р°</option>
-              <option value="commands">РљРѕРјР°РЅРґРё / РїСЂРѕС†РµРґСѓСЂРё</option>
-              <option value="dialogue">Р”С–Р°Р»РѕРі / С„СЂР°Р·Рё</option>
+              <option value="auto">Авто</option>
+              <option value="vocab">Словник / числа</option>
+              <option value="commands">Команди / процедури</option>
+              <option value="dialogue">Діалог / фрази</option>
             </select>
           </label>
           <label class="topic-visual-label" for="topicPaletteSelect">
-            РџР°Р»С–С‚СЂР°:
+            Палітра:
             <select id="topicPaletteSelect" class="trainer-variant-select">
-              <option value="auto">РђРІС‚Рѕ (РґРѕ С‚РµРјРё)</option>
+              <option value="auto">Авто (до теми)</option>
               <option value="pastel">Pastel</option>
               <option value="vibrant">Vibrant</option>
               <option value="monochrome">Monochrome</option>
@@ -66,39 +66,39 @@
       </header>
 
       <section class="status-panel" aria-live="polite">
-        <div class="status-item">Р С–РІРµРЅСЊ: <span id="levelLabel">A0</span></div>
-        <div class="status-item">РџСЂР°РІРёР»СЊРЅРёС…: <span id="correctCount">0</span></div>
-        <div class="status-item">РЎРїСЂРѕР±: <span id="attemptCount">0</span></div>
+        <div class="status-item">Рівень: <span id="levelLabel">A0</span></div>
+        <div class="status-item">Правильних: <span id="correctCount">0</span></div>
+        <div class="status-item">Спроб: <span id="attemptCount">0</span></div>
       </section>
 
       <div class="trainer-main-stage trainer-main-stage--no-rail">
-        <aside id="trainerSceneMount" class="trainer-scene-mount trainer-scene-rail" aria-label="РЎС†РµРЅРё РґРѕ РґС–Р°Р»РѕРіС–РІ"></aside>
+        <aside id="trainerSceneMount" class="trainer-scene-mount trainer-scene-rail" aria-label="Сцени до діалогів"></aside>
         <div class="trainer-chat-wrap">
-          <section id="chatContainer" class="chat-container" aria-label="Р§Р°С‚ Р· Р±РѕС‚РѕРј"></section>
+          <section id="chatContainer" class="chat-container" aria-label="Чат з ботом"></section>
         </div>
       </div>
 
       <section class="controls">
         <div class="lesson-picker-row">
-          <label class="input-label" for="lessonSelect">РћР±РµСЂРё СѓСЂРѕРє РґР»СЏ СЃС‚Р°СЂС‚Сѓ</label>
+          <label class="input-label" for="lessonSelect">Обери урок для старту</label>
           <div class="lesson-picker-controls">
-            <select id="lessonSelect" aria-label="Р’РёР±С–СЂ СѓСЂРѕРєСѓ"></select>
-            <button id="startLessonButton" type="button">РџРѕС‡Р°С‚Рё Р· С†СЊРѕРіРѕ СѓСЂРѕРєСѓ</button>
+            <select id="lessonSelect" aria-label="Вибір уроку"></select>
+            <button id="startLessonButton" type="button">Почати з цього уроку</button>
           </div>
         </div>
-        <div id="taskPrompt" class="task-prompt" aria-live="polite">Р—Р°РІР°РЅС‚Р°Р¶РµРЅРЅСЏ Р·Р°РІРґР°РЅРЅСЏ...</div>
-        <label class="input-label" for="userInput">РўРІРѕСЏ РІС–РґРїРѕРІС–РґСЊ</label>
+        <div id="taskPrompt" class="task-prompt" aria-live="polite">Завантаження завдання...</div>
+        <label class="input-label" for="userInput">Твоя відповідь</label>
         <div class="input-row">
-          <input id="userInput" type="text" placeholder="РќР°РїРёС€Рё РјРѕРІРѕСЋ СѓСЂРѕРєСѓ Р°Р±Рѕ СѓРєСЂР°С—РЅСЃСЊРєРѕСЋ..." autocomplete="off" />
-          <button id="sendButton" type="button">РќР°РґС–СЃР»Р°С‚Рё</button>
+          <input id="userInput" type="text" placeholder="Напиши мовою уроку або українською..." autocomplete="off" />
+          <button id="sendButton" type="button">Надіслати</button>
         </div>
         <div class="secondary-actions">
-          <button id="dictionaryButton" type="button">РџРѕРєР°Р·Р°С‚Рё СЃР»РѕРІРЅРёРє С‚РµРјРё</button>
-          <button id="dictionaryMoreButton" type="button">РџРѕРєР°Р·Р°С‚Рё С‰Рµ</button>
-          <button id="translationToggleButton" type="button">РҐРѕРІР°С‚Рё РїС–РґРєР°Р·РєРё РїРµСЂРµРєР»Р°РґСѓ</button>
-          <button id="lessonButton" type="button">РџРѕСЏСЃРЅРµРЅРЅСЏ СѓСЂРѕРєСѓ С‰Рµ СЂР°Р·</button>
-          <button id="speakButton" type="button">РћР·РІСѓС‡РёС‚Рё РѕСЃС‚Р°РЅРЅСЋ С„СЂР°Р·Сѓ</button>
-          <button id="resetButton" type="button">РЎРєРёРЅСѓС‚Рё РїСЂРѕРіСЂРµСЃ</button>
+          <button id="dictionaryButton" type="button">Показати словник теми</button>
+          <button id="dictionaryMoreButton" type="button">Показати ще</button>
+          <button id="translationToggleButton" type="button">Ховати підказки перекладу</button>
+          <button id="lessonButton" type="button">Пояснення уроку ще раз</button>
+          <button id="speakButton" type="button">Озвучити останню фразу</button>
+          <button id="resetButton" type="button">Скинути прогрес</button>
         </div>
       </section>
     </main>
