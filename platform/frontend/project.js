@@ -54,8 +54,8 @@ function updateLearningLanguageUi() {
   }
   if (PROJECT_ELEMENTS.learningLanguageHint) {
     PROJECT_ELEMENTS.learningLanguageHint.textContent = meta.code === "it"
-      ? "Основа для Italian вже підключена, але італійські курси ще не додані в контент."
-      : "Зараз доступний англомовний контент. Після підготовки multilingual-контенту тут з'явиться італійська."
+      ? "Італійська доступна у starter-режимі: завантаж курси, щоб почати з базових уроків."
+      : "Англійська доступна у starter-режимі. Можеш перемкнутися на італійську в цьому ж списку."
     ;
   }
 }
@@ -106,7 +106,7 @@ async function loadCourses() {
 
     if (projectState.courses.length === 0) {
       const meta = learningLanguageClient.getLanguageMeta(getSelectedLearningLanguage());
-      PROJECT_ELEMENTS.lessonOutput.textContent = `Курси для мови "${meta.labelUa}" ще не додані.`;
+      PROJECT_ELEMENTS.lessonOutput.textContent = `Starter-курси для мови "${meta.labelUa}" тимчасово недоступні.`;
       return;
     }
 
