@@ -2,6 +2,7 @@ const REMOTE_TEST_STORAGE_KEYS = Object.freeze({
   backendUrl: "lingvo_backend_url",
   accessToken: "lingvo_access_token",
   refreshToken: "lingvo_refresh_token",
+  targetLang: "lingvo_target_lang",
 });
 
 const REMOTE_TEST_ELEMENTS = {
@@ -9,10 +10,16 @@ const REMOTE_TEST_ELEMENTS = {
   form: document.getElementById("remoteTestForm"),
   email: document.getElementById("remoteLoginEmail"),
   password: document.getElementById("remoteLoginPassword"),
+  targetLangSelect: document.getElementById("remoteTargetLangSelect"),
   loginButton: document.getElementById("remoteLoginButton"),
   output: document.getElementById("remoteTestOutput"),
   backendHint: document.getElementById("remoteBackendHint"),
 };
+
+const TARGET_LANG = Object.freeze({
+  english: "en",
+  italian: "it",
+});
 
 function logRemoteTestInfo(operationName, payload) {
   try {
@@ -73,6 +80,11 @@ function setRemoteTestOutput(text, mode) {
   }
 }
 
+function getSelectedTargetLang() {
+  const raw = String(REMOTE_TEST_ELEMENTS.targetLangSelect?.value || "").trim().toLowerCase();
+  return raw === TARGET_LANG.italian ? TARGET_LANG.italian : TARGET_LANG.english;
+}
+
 async function performRemoteLogin() {
   const baseUrl = getConfiguredBackendUrl();
   if (!baseUrl) {
@@ -111,6 +123,7 @@ async function performRemoteLogin() {
       window.localStorage.setItem(REMOTE_TEST_STORAGE_KEYS.refreshToken, data.refreshToken);
     }
     window.localStorage.setItem(REMOTE_TEST_STORAGE_KEYS.backendUrl, baseUrl);
+    window.localStorage.setItem(REMOTE_TEST_STORAGE_KEYS.targetLang, getSelectedTargetLang());
     setRemoteTestOutput("Вхід успішний. Переходимо до платформи…", "ok");
     logRemoteTestInfo("remote_test.login.success", { email });
     window.setTimeout(function () {
@@ -151,6 +164,17 @@ function bootstrapRemoteTest() {
         ? `Сервер: ${baseUrl}`
         : "Увага: у lingvoPublicConfig.js не задано LINGVO_PUBLIC_BACKEND_URL.";
     }
+
+    const savedTargetLang = String(window.localStorage.getItem(REMOTE_TEST_STORAGE_KEYS.targetLang) || "")
+      .trim()
+      .toLowerCase();
+    if (REMOTE_TEST_ELEMENTS.targetLangSelect) {
+      REMOTE_TEST_ELEMENTS.targetLangSelect.value =
+        savedTargetLang === TARGET_LANG.italian ? TARGET_LANG.italian : TARGET_LANG.english;
+    }
+    REMOTE_TEST_ELEMENTS.targetLangSelect?.addEventListener("change", function () {
+      window.localStorage.setItem(REMOTE_TEST_STORAGE_KEYS.targetLang, getSelectedTargetLang());
+    });
 
     REMOTE_TEST_ELEMENTS.loginButton?.addEventListener("click", function () {
       void performRemoteLogin();
