@@ -92,6 +92,15 @@
           <input id="userInput" type="text" placeholder="Напиши мовою уроку або українською..." autocomplete="off" />
           <button id="sendButton" type="button">Надіслати</button>
         </div>
+        <div class="lesson-picker-row">
+          <label class="input-label" for="translationPracticeInput">Перевірка перекладу</label>
+          <div id="translationPracticePrompt" class="task-prompt" aria-live="polite">Обери урок, щоб отримати завдання для перекладу.</div>
+          <div class="input-row">
+            <input id="translationPracticeInput" type="text" placeholder="Введи переклад..." autocomplete="off" />
+            <button id="translationPracticeCheckButton" type="button">Перевірити</button>
+          </div>
+          <div id="translationPracticeResult" class="task-prompt" aria-live="polite"></div>
+        </div>
         <div class="secondary-actions">
           <button id="dictionaryButton" type="button">Показати словник теми</button>
           <button id="dictionaryMoreButton" type="button">Показати ще</button>

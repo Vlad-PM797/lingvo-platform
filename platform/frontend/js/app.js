@@ -40,6 +40,7 @@ export class TutorController {
       this.applyHintsVisibilityClass();
       this.updateTranslationToggleButtonLabel();
       this.updateInputPlaceholder();
+      this.updateTranslationPracticePrompt();
       this.setTaskPrompt("Прочитай повідомлення бота і виконай поточне завдання.");
       this.renderStatus();
       this.showCurrentStepMessage();
@@ -55,6 +56,12 @@ export class TutorController {
     this.elements.userInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         this.handleSubmit();
+      }
+    });
+    this.elements.translationPracticeCheckButton?.addEventListener("click", () => this.handleTranslationPracticeCheck());
+    this.elements.translationPracticeInput?.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        this.handleTranslationPracticeCheck();
       }
     });
     this.elements.dictionaryButton.addEventListener("click", () => this.handleShowDictionary());
@@ -133,6 +140,34 @@ export class TutorController {
     } catch (error) {
       this.logger.error("app.submit.failed", error);
       this.pushBotMessage(UI_TEXT.UNKNOWN_ERROR);
+    }
+  }
+
+  handleTranslationPracticeCheck() {
+    try {
+      const currentStep = this.getCurrentStep();
+      if (!currentStep) {
+        this.setTranslationPracticeResult("Немає активного завдання для перевірки.");
+        return;
+      }
+
+      const rawAnswer = String(this.elements.translationPracticeInput?.value || "").trim();
+      const validationResult = this.inputValidator.validateRawInput(rawAnswer);
+      if (!validationResult.valid) {
+        this.setTranslationPracticeResult(validationResult.reason);
+        return;
+      }
+
+      const isCorrect = this.inputValidator.isAnswerCorrect(validationResult.normalized, currentStep.expectedAnswers);
+      if (isCorrect) {
+        this.setTranslationPracticeResult("Правильно. Переклад збігається з очікуваною відповіддю.");
+        return;
+      }
+
+      this.setTranslationPracticeResult(`Поки ні. Приклад правильної відповіді: ${currentStep.expectedAnswers[0]}`);
+    } catch (error) {
+      this.logger.error("app.translationPractice.failed", error);
+      this.setTranslationPracticeResult(UI_TEXT.UNKNOWN_ERROR);
     }
   }
 
@@ -266,10 +301,12 @@ export class TutorController {
     try {
       const currentStep = this.getCurrentStep();
       if (!currentStep) {
+        this.updateTranslationPracticePrompt();
         this.pushBotMessage("Супер. Урок завершено. Натисни Скинути прогрес, щоб почати знову.");
         return;
       }
 
+      this.updateTranslationPracticePrompt();
       const introDone = this.runIntroFlowIfNeeded(currentStep.project);
       if (!introDone) {
         return;
@@ -604,6 +641,26 @@ export class TutorController {
       return;
     }
     this.elements.userInput.placeholder = getInputPlaceholder();
+  }
+
+  updateTranslationPracticePrompt() {
+    const promptElement = this.elements.translationPracticePrompt;
+    if (!promptElement) {
+      return;
+    }
+
+    const currentStep = this.getCurrentStep();
+    promptElement.textContent = currentStep
+      ? `Завдання для перевірки: ${currentStep.promptUa}`
+      : "Обери урок, щоб отримати завдання для перекладу.";
+    this.setTranslationPracticeResult("");
+  }
+
+  setTranslationPracticeResult(message) {
+    if (!this.elements.translationPracticeResult) {
+      return;
+    }
+    this.elements.translationPracticeResult.textContent = message;
   }
 
   setTaskPrompt(taskText) {

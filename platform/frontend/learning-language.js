@@ -51,7 +51,7 @@
     selectElement.addEventListener("change", function () {
       const nextLanguage = setCurrentLanguage(selectElement.value);
       selectElement.value = nextLanguage;
-    });
+    }, { capture: true });
   }
 
   function autoInitSelectors() {
