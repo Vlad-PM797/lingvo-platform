@@ -17,6 +17,9 @@ const PROJECT_ELEMENTS = {
 
 const authClient = window.LingvoAuthClient;
 const learningLanguageClient = window.LingvoLearningLanguage;
+const sharedUi = window.LingvoFrontendShared;
+const sharedLearning = window.LingvoSharedLearning;
+const logger = sharedUi.createConsoleLogger("project");
 
 const PROJECT_MESSAGES = Object.freeze({
   loginRequired: "Сесія відсутня. Увійди ще раз.",
@@ -29,14 +32,6 @@ const projectState = {
   lessonsByCourseId: new Map(),
   selectedLesson: null,
 };
-
-function getLearningText(item) {
-  return String(item?.learningText || item?.en || "");
-}
-
-function getTranslationText(item) {
-  return String(item?.translationText || item?.ua || "");
-}
 
 function getSelectedLearningLanguage() {
   if (PROJECT_ELEMENTS.learningLanguageSelect) {
@@ -69,66 +64,27 @@ function getLearningLanguageName(code) {
   return learningLanguageClient.getLanguageMeta(code).labelUa;
 }
 
-function logInfo(operationName, payload = {}) {
-  console.info(`[INFO] ${operationName}`, payload);
-}
-
-function logError(operationName, error, payload = {}) {
-  console.error(`[ERROR] ${operationName}`, {
-    message: error instanceof Error ? error.message : String(error),
-    payload,
-  });
-}
-
 function getBaseUrlOrThrow() {
-  return authClient.getBaseUrlOrThrow({
-    inputValue: PROJECT_ELEMENTS.baseUrl.value,
-  });
-}
-
-function getAccessTokenOrThrow() {
-  const token = authClient.getAccessToken();
-  if (!token) {
-    throw new Error(PROJECT_MESSAGES.loginRequired);
-  }
-  return token;
-}
-
-async function requestAuthJson(path, method = "GET", payload = null) {
-  let response;
-  try {
-    response = await authClient.request(path, {
-      baseUrl: getBaseUrlOrThrow(),
-      method,
-      body: payload,
-      auth: true,
-    });
-  } catch (error) {
-    logError("project.request.network_error", error, { path, method });
-    throw error;
-  }
-  return response;
+  return sharedUi.getBaseUrlOrThrow(authClient, PROJECT_ELEMENTS.baseUrl);
 }
 
 function renderCourseOptions() {
-  PROJECT_ELEMENTS.courseSelect.innerHTML = "";
-  for (const course of projectState.courses) {
-    const option = document.createElement("option");
-    option.value = course.id;
-    option.textContent = `${course.title} (${course.lessonsCount ?? course.lessons?.length ?? 0} уроків)`;
-    PROJECT_ELEMENTS.courseSelect.appendChild(option);
-  }
+  sharedUi.renderSelectOptions(
+    PROJECT_ELEMENTS.courseSelect,
+    projectState.courses,
+    (course) => course.id,
+    (course) => `${course.title} (${course.lessonsCount ?? course.lessons?.length ?? 0} уроків)`,
+  );
 }
 
 function renderLessonOptions(courseId) {
-  PROJECT_ELEMENTS.lessonSelect.innerHTML = "";
   const lessons = projectState.lessonsByCourseId.get(courseId) || [];
-  for (const lesson of lessons) {
-    const option = document.createElement("option");
-    option.value = lesson.id;
-    option.textContent = `${lesson.orderInCourse ?? lesson.ordinal ?? 0}. ${lesson.title}`;
-    PROJECT_ELEMENTS.lessonSelect.appendChild(option);
-  }
+  sharedUi.renderSelectOptions(
+    PROJECT_ELEMENTS.lessonSelect,
+    lessons,
+    (lesson) => lesson.id,
+    (lesson) => `${lesson.orderInCourse ?? lesson.ordinal ?? 0}. ${lesson.title}`,
+  );
   try {
     if (window.LingvoTopicLessonVisuals && typeof window.LingvoTopicLessonVisuals.apply === "function") {
       const opt = PROJECT_ELEMENTS.lessonSelect.options[PROJECT_ELEMENTS.lessonSelect.selectedIndex];
@@ -138,15 +94,14 @@ function renderLessonOptions(courseId) {
       window.LingvoTopicLessonVisuals.apply({ title: text, code: "" });
     }
   } catch (error) {
-    logError("project.topic_visuals.after_render_lessons", error, { courseId });
+    logger.error("topic_visuals.after_render_lessons", error, { courseId });
   }
 }
 
 async function loadCourses() {
   try {
-    logInfo("project.courses.load.attempt");
-    const payload = await requestAuthJson(`/learning/courses${buildLearningQueryString()}`);
-    projectState.courses = Array.isArray(payload.courses) ? payload.courses : [];
+    logger.info("courses.load.attempt");
+    projectState.courses = await sharedLearning.fetchCourses(authClient, getBaseUrlOrThrow(), buildLearningQueryString());
     renderCourseOptions();
 
     if (projectState.courses.length === 0) {
@@ -157,9 +112,9 @@ async function loadCourses() {
 
     await handleCourseChange();
     PROJECT_ELEMENTS.lessonOutput.textContent = `Курсів завантажено: ${projectState.courses.length}`;
-    logInfo("project.courses.load.success", { count: projectState.courses.length });
+    logger.info("courses.load.success", { count: projectState.courses.length });
   } catch (error) {
-    logError("project.courses.load.failed", error);
+    logger.error("courses.load.failed", error);
     PROJECT_ELEMENTS.lessonOutput.textContent = `Помилка завантаження курсів:\n${error instanceof Error ? error.message : String(error)}`;
   }
 }
@@ -173,15 +128,14 @@ async function handleCourseChange() {
   try {
     let lessons = projectState.lessonsByCourseId.get(courseId);
     if (!lessons) {
-      logInfo("project.lessons.load.attempt", { courseId });
-      const payload = await requestAuthJson(`/learning/courses/${courseId}/lessons${buildLearningQueryString()}`);
-      lessons = Array.isArray(payload.lessons) ? payload.lessons : [];
+      logger.info("lessons.load.attempt", { courseId });
+      lessons = await sharedLearning.fetchLessonsByCourseId(authClient, getBaseUrlOrThrow(), courseId, buildLearningQueryString());
       projectState.lessonsByCourseId.set(courseId, lessons);
-      logInfo("project.lessons.load.success", { courseId, count: lessons.length });
+      logger.info("lessons.load.success", { courseId, count: lessons.length });
     }
     renderLessonOptions(courseId);
   } catch (error) {
-    logError("project.lessons.load.failed", error, { courseId });
+    logger.error("lessons.load.failed", error, { courseId });
     PROJECT_ELEMENTS.lessonOutput.textContent = `Помилка завантаження уроків:\n${error instanceof Error ? error.message : String(error)}`;
   }
 }
@@ -293,38 +247,32 @@ async function openLesson() {
         window.LingvoTopicLessonVisuals.clear();
       }
     } catch (error) {
-      logError("project.topic_visuals.clear", error);
+      logger.error("topic_visuals.clear", error);
     }
     PROJECT_ELEMENTS.lessonOutput.textContent = PROJECT_MESSAGES.lessonMissing;
     return;
   }
 
   try {
-    logInfo("project.lesson.open.attempt", { lessonId });
+    logger.info("lesson.open.attempt", { lessonId });
     clearLessonSceneMount();
-    const lesson = await requestAuthJson(`/learning/lessons/${lessonId}`);
+    const lesson = await sharedLearning.fetchLessonById(authClient, getBaseUrlOrThrow(), lessonId);
     projectState.selectedLesson = lesson;
 
-    const words = Array.isArray(lesson.words) ? lesson.words : [];
-    const phrases = Array.isArray(lesson.phrases) ? lesson.phrases : [];
-
-    const wordsPreview = words.slice(0, 20).map((item) => `- ${getLearningText(item)} — ${getTranslationText(item)}`).join("\n");
-    const phrasesPreview = phrases.slice(0, 14).map((item) => `- ${getLearningText(item)} — ${getTranslationText(item)}`).join("\n");
     const learningLanguageName = getLearningLanguageName(lesson.learningLanguage || getSelectedLearningLanguage());
 
-    PROJECT_ELEMENTS.lessonOutput.textContent = [
-      `Урок: ${lesson.title}`,
-      `Мова навчання: ${learningLanguageName}`,
-      ``,
-      `Опис:`,
-      `${lesson.description || "(немає)"}`,
-      ``,
-      `Слова (${words.length}):`,
-      wordsPreview || "(немає)",
-      ``,
-      `Фрази (${phrases.length}):`,
-      phrasesPreview || "(немає)",
-    ].join("\n");
+    PROJECT_ELEMENTS.lessonOutput.textContent = sharedLearning.formatLessonPreview(lesson, {
+      headingLines: [
+        `Урок: ${lesson.title}`,
+        `Мова навчання: ${learningLanguageName}`,
+        ``,
+        `Опис:`,
+        `${lesson.description || "(немає)"}`,
+        ``,
+      ],
+      wordLimit: 20,
+      phraseLimit: 14,
+    });
     const scenes = resolveLessonScenesWithFrontendFallback(lesson);
     renderLessonScenes({ ...lesson, dialogueScenes: scenes });
     try {
@@ -334,17 +282,17 @@ async function openLesson() {
         }),
       );
     } catch (error) {
-      logError("project.lesson.context_event", error, { lessonId });
+      logger.error("lesson.context_event", error, { lessonId });
     }
   } catch (error) {
-    logError("project.lesson.open.failed", error, { lessonId });
+    logger.error("lesson.open.failed", error, { lessonId });
     clearLessonSceneMount();
     try {
       if (window.LingvoTopicLessonVisuals && typeof window.LingvoTopicLessonVisuals.clear === "function") {
         window.LingvoTopicLessonVisuals.clear();
       }
     } catch (clearError) {
-      logError("project.topic_visuals.clear_after_error", clearError);
+      logger.error("topic_visuals.clear_after_error", clearError);
     }
     PROJECT_ELEMENTS.lessonOutput.textContent = `Помилка відкриття уроку:\n${error instanceof Error ? error.message : String(error)}`;
   }
@@ -364,25 +312,33 @@ async function submitAttempt() {
 
   const expectedAnswers = (projectState.selectedLesson.phrases || [])
     .slice(0, 2)
-    .map((item) => getLearningText(item))
+    .map((item) => sharedUi.getLearningText(item))
     .filter(Boolean);
   if (expectedAnswers.length === 0) {
     PROJECT_ELEMENTS.attemptOutput.textContent = "Для цього уроку немає фраз для перевірки відповіді.";
     return;
   }
-  const sourceText = getTranslationText((projectState.selectedLesson.phrases || [])[0])
+  const sourceText = sharedUi.getTranslationText((projectState.selectedLesson.phrases || [])[0])
     || projectState.selectedLesson.title
     || "lesson_prompt";
 
   try {
-    logInfo("project.attempt.submit.attempt", { lessonId: projectState.selectedLesson.id });
-    const result = await requestAuthJson("/learning/progress/attempts", "POST", {
-      lessonId: projectState.selectedLesson.id,
-      promptType: "translation",
-      sourceText,
-      expectedAnswers,
-      userAnswer: answerText,
-    });
+    logger.info("attempt.submit.attempt", { lessonId: projectState.selectedLesson.id });
+    const result = await sharedLearning.requestLearningJson(
+      authClient,
+      getBaseUrlOrThrow(),
+      "/learning/progress/attempts",
+      {
+        method: "POST",
+        body: {
+          lessonId: projectState.selectedLesson.id,
+          promptType: "translation",
+          sourceText,
+          expectedAnswers,
+          userAnswer: answerText,
+        },
+      },
+    );
     PROJECT_ELEMENTS.attemptOutput.textContent = [
       `Результат: ${result.isCorrect ? "правильно" : "неправильно"}`,
       `Прийнята відповідь: ${result.acceptedAnswer}`,
@@ -390,17 +346,21 @@ async function submitAttempt() {
       `Правильних: ${result.correctCount}`,
       `Точність: ${result.accuracyPercent}%`,
     ].join("\n");
-    logInfo("project.attempt.submit.success", { lessonId: projectState.selectedLesson.id, isCorrect: result.isCorrect });
+    logger.info("attempt.submit.success", { lessonId: projectState.selectedLesson.id, isCorrect: result.isCorrect });
   } catch (error) {
-    logError("project.attempt.submit.failed", error, { lessonId: projectState.selectedLesson.id });
+    logger.error("attempt.submit.failed", error, { lessonId: projectState.selectedLesson.id });
     PROJECT_ELEMENTS.attemptOutput.textContent = `Помилка відправки відповіді:\n${error instanceof Error ? error.message : String(error)}`;
   }
 }
 
 async function loadProgress() {
   try {
-    logInfo("project.progress.load.attempt");
-    const progress = await requestAuthJson("/learning/progress/me");
+    logger.info("progress.load.attempt");
+    const progress = await sharedLearning.requestLearningJson(
+      authClient,
+      getBaseUrlOrThrow(),
+      "/learning/progress/me",
+    );
     PROJECT_ELEMENTS.attemptOutput.textContent = [
       `Загальний прогрес:`,
       `Спроб: ${progress.totals?.attemptsCount ?? 0}`,
@@ -408,9 +368,9 @@ async function loadProgress() {
       `Точність: ${progress.totals?.accuracyPercent ?? 0}%`,
       `Завершено уроків: ${progress.totals?.completedLessonsCount ?? 0}`,
     ].join("\n");
-    logInfo("project.progress.load.success");
+    logger.info("progress.load.success");
   } catch (error) {
-    logError("project.progress.load.failed", error);
+    logger.error("progress.load.failed", error);
     PROJECT_ELEMENTS.attemptOutput.textContent = `Помилка завантаження прогресу:\n${error instanceof Error ? error.message : String(error)}`;
   }
 }
@@ -418,7 +378,7 @@ async function loadProgress() {
 function logout() {
   authClient.logout({ baseUrl: getBaseUrlOrThrow() })
     .catch((error) => {
-      logError("project.logout.failed", error);
+      logger.error("logout.failed", error);
     })
     .finally(() => {
       window.location.href = "./remote-test.html";
@@ -426,15 +386,7 @@ function logout() {
 }
 
 async function bootstrap() {
-  const savedBackendUrl = authClient.getStoredBackendUrl();
-  if (savedBackendUrl) {
-    PROJECT_ELEMENTS.baseUrl.value = savedBackendUrl;
-  } else if (authClient.getPublicBackendUrl()) {
-    const pub = authClient.getPublicBackendUrl();
-    if (pub) {
-      PROJECT_ELEMENTS.baseUrl.value = pub;
-    }
-  }
+  sharedUi.populateBackendUrlInput(PROJECT_ELEMENTS.baseUrl, authClient);
 
   const accessToken = await authClient.restoreSession({
     baseUrl: PROJECT_ELEMENTS.baseUrl.value,
@@ -444,11 +396,7 @@ async function bootstrap() {
     return;
   }
 
-  PROJECT_ELEMENTS.baseUrl.addEventListener("change", () => {
-    const normalized = authClient.normalizeBaseUrl(PROJECT_ELEMENTS.baseUrl.value);
-    PROJECT_ELEMENTS.baseUrl.value = normalized;
-    authClient.setBackendUrl(normalized);
-  });
+  sharedUi.bindBackendUrlInput(PROJECT_ELEMENTS.baseUrl, authClient);
 
   if (PROJECT_ELEMENTS.learningLanguageSelect) {
     PROJECT_ELEMENTS.learningLanguageSelect.value = learningLanguageClient.getCurrentLanguage();

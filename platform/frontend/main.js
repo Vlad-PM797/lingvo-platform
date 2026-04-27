@@ -15,38 +15,22 @@ const elements = {
 };
 
 const authClient = window.LingvoAuthClient;
+const sharedUi = window.LingvoFrontendShared;
+const sharedLearning = window.LingvoSharedLearning;
+const logger = sharedUi.createConsoleLogger("portal");
 
 const appState = {
   courses: [],
   lessonsByCourseId: new Map(),
 };
 
-function logInfo(operationName, payload = {}) {
-  console.info(`[INFO] ${operationName}`, payload);
-}
-
-function logError(operationName, error, payload = {}) {
-  console.error(`[ERROR] ${operationName}`, {
-    message: error instanceof Error ? error.message : String(error),
-    payload,
-  });
-}
-
 function setOutput(text, mode = "info") {
   elements.output.className = mode === "ok" ? "ok" : mode === "warn" ? "warn" : "";
   elements.output.textContent = text;
 }
 
-function resolveBackendUrlForPortal() {
-  return authClient.resolveBackendUrl({
-    inputValue: elements.baseUrl ? elements.baseUrl.value : "",
-  });
-}
-
 function getBaseUrlOrThrow() {
-  return authClient.getBaseUrlOrThrow({
-    inputValue: elements.baseUrl ? elements.baseUrl.value : "",
-  });
+  return sharedUi.getBaseUrlOrThrow(authClient, elements.baseUrl);
 }
 
 async function handleRegister() {
@@ -57,12 +41,12 @@ async function handleRegister() {
       throw new Error("Вкажи валідний email і пароль від 8 символів.");
     }
 
-    logInfo("auth.register.attempt", { email });
+    logger.info("auth.register.attempt", { email });
     const result = await authClient.register({ email, password }, { baseUrl: getBaseUrlOrThrow() });
-    logInfo("auth.register.success", { email });
+    logger.info("auth.register.success", { email });
     setOutput(`Користувач створений:\n${JSON.stringify(result, null, 2)}`, "ok");
   } catch (error) {
-    logError("auth.register.failed", error);
+    logger.error("auth.register.failed", error);
     setOutput(`Помилка реєстрації:\n${error instanceof Error ? error.message : String(error)}`, "warn");
   }
 }
@@ -75,16 +59,16 @@ async function handleLogin() {
       throw new Error("Вкажи email і пароль.");
     }
 
-    logInfo("auth.login.attempt", { email });
+    logger.info("auth.login.attempt", { email });
     const result = await authClient.login({ email, password }, { baseUrl: getBaseUrlOrThrow() });
-    logInfo("auth.login.success", { email });
+    logger.info("auth.login.success", { email });
     setOutput(`Вхід успішний. Сесію створено.\n${JSON.stringify(result, null, 2)}`, "ok");
     elements.learningOutput.textContent = "Вхід успішний. Натисни \"Завантажити курси\".";
     window.setTimeout(() => {
       redirectToProjectPage();
     }, 700);
   } catch (error) {
-    logError("auth.login.failed", error);
+    logger.error("auth.login.failed", error);
     setOutput(`Помилка входу:\n${error instanceof Error ? error.message : String(error)}`, "warn");
   }
 }
@@ -94,34 +78,28 @@ function redirectToProjectPage() {
 }
 
 function renderCourseOptions() {
-  elements.courseSelect.innerHTML = "";
-  for (const course of appState.courses) {
-    const option = document.createElement("option");
-    option.value = course.id;
-    option.textContent = `${course.title} (${course.lessonsCount ?? 0} уроків)`;
-    elements.courseSelect.appendChild(option);
-  }
+  sharedUi.renderSelectOptions(
+    elements.courseSelect,
+    appState.courses,
+    (course) => course.id,
+    (course) => `${course.title} (${course.lessonsCount ?? 0} уроків)`,
+  );
 }
 
 function renderLessonOptions(courseId) {
-  elements.lessonSelect.innerHTML = "";
   const lessons = appState.lessonsByCourseId.get(courseId) || [];
-  for (const lesson of lessons) {
-    const option = document.createElement("option");
-    option.value = lesson.id;
-    option.textContent = `${lesson.orderInCourse}. ${lesson.title}`;
-    elements.lessonSelect.appendChild(option);
-  }
+  sharedUi.renderSelectOptions(
+    elements.lessonSelect,
+    lessons,
+    (lesson) => lesson.id,
+    (lesson) => `${lesson.orderInCourse}. ${lesson.title}`,
+  );
 }
 
 async function handleLoadCourses() {
   try {
-    logInfo("learning.courses.load.attempt");
-    const payload = await authClient.request("/learning/courses", {
-      baseUrl: getBaseUrlOrThrow(),
-      auth: true,
-    });
-    appState.courses = Array.isArray(payload.courses) ? payload.courses : [];
+    logger.info("learning.courses.load.attempt");
+    appState.courses = await sharedLearning.fetchCourses(authClient, getBaseUrlOrThrow());
     renderCourseOptions();
     if (appState.courses.length === 0) {
       elements.learningOutput.textContent = "Курси не знайдено.";
@@ -129,9 +107,9 @@ async function handleLoadCourses() {
     }
     await handleCourseChange();
     elements.learningOutput.textContent = `Курсів завантажено: ${appState.courses.length}`;
-    logInfo("learning.courses.load.success", { count: appState.courses.length });
+    logger.info("learning.courses.load.success", { count: appState.courses.length });
   } catch (error) {
-    logError("learning.courses.load.failed", error);
+    logger.error("learning.courses.load.failed", error);
     elements.learningOutput.textContent = `Помилка завантаження курсів:\n${error instanceof Error ? error.message : String(error)}`;
   }
 }
@@ -140,20 +118,16 @@ async function handleCourseChange() {
   const courseId = elements.courseSelect.value;
   if (!courseId) return;
   try {
-    logInfo("learning.lessons.load.attempt", { courseId });
+    logger.info("learning.lessons.load.attempt", { courseId });
     let lessons = appState.lessonsByCourseId.get(courseId);
     if (!lessons) {
-      const payload = await authClient.request(`/learning/courses/${courseId}/lessons`, {
-        baseUrl: getBaseUrlOrThrow(),
-        auth: true,
-      });
-      lessons = Array.isArray(payload.lessons) ? payload.lessons : [];
+      lessons = await sharedLearning.fetchLessonsByCourseId(authClient, getBaseUrlOrThrow(), courseId);
       appState.lessonsByCourseId.set(courseId, lessons);
     }
     renderLessonOptions(courseId);
-    logInfo("learning.lessons.load.success", { courseId, count: lessons.length });
+    logger.info("learning.lessons.load.success", { courseId, count: lessons.length });
   } catch (error) {
-    logError("learning.lessons.load.failed", error, { courseId });
+    logger.error("learning.lessons.load.failed", error, { courseId });
     elements.learningOutput.textContent = `Помилка завантаження уроків:\n${error instanceof Error ? error.message : String(error)}`;
   }
 }
@@ -165,33 +139,31 @@ async function handleOpenLesson() {
     return;
   }
   try {
-    logInfo("learning.lesson.open.attempt", { lessonId });
-    const lesson = await authClient.request(`/learning/lessons/${lessonId}`, {
-      baseUrl: getBaseUrlOrThrow(),
-      auth: true,
+    logger.info("learning.lesson.open.attempt", { lessonId });
+    const lesson = await sharedLearning.fetchLessonById(authClient, getBaseUrlOrThrow(), lessonId);
+    elements.learningOutput.textContent = sharedLearning.formatLessonPreview(lesson, {
+      headingLines: [
+        `Урок: ${lesson.title}`,
+        `Мова навчання: ${lesson.learningLanguage || "en"}`,
+        ``,
+        `Матеріал:`,
+        `${lesson.materialUa || "(немає)"}`,
+        ``,
+      ],
+      trailingLines: [
+        ``,
+        `Підказка: це MVP перегляд уроку через API. Далі можна додати повний інтерактив вправ тут.`,
+      ],
+      wordLimit: 12,
+      phraseLimit: 8,
     });
-    const words = Array.isArray(lesson.words) ? lesson.words : [];
-    const phrases = Array.isArray(lesson.phrases) ? lesson.phrases : [];
-    const wordsPreview = words.slice(0, 12).map((item) => `- ${item.learningText || item.en} — ${item.translationText || item.ua}`).join("\n");
-    const phrasesPreview = phrases.slice(0, 8).map((item) => `- ${item.learningText || item.en} — ${item.translationText || item.ua}`).join("\n");
-    elements.learningOutput.textContent = [
-      `Урок: ${lesson.title}`,
-      `Мова навчання: ${lesson.learningLanguage || "en"}`,
-      ``,
-      `Матеріал:`,
-      `${lesson.materialUa || "(немає)"}`,
-      ``,
-      `Слова (${words.length}):`,
-      wordsPreview || "(немає)",
-      ``,
-      `Фрази (${phrases.length}):`,
-      phrasesPreview || "(немає)",
-      ``,
-      `Підказка: це MVP перегляд уроку через API. Далі можна додати повний інтерактив вправ тут.`,
-    ].join("\n");
-    logInfo("learning.lesson.open.success", { lessonId, words: words.length, phrases: phrases.length });
+    logger.info("learning.lesson.open.success", {
+      lessonId,
+      words: Array.isArray(lesson.words) ? lesson.words.length : 0,
+      phrases: Array.isArray(lesson.phrases) ? lesson.phrases.length : 0,
+    });
   } catch (error) {
-    logError("learning.lesson.open.failed", error, { lessonId });
+    logger.error("learning.lesson.open.failed", error, { lessonId });
     elements.learningOutput.textContent = `Помилка відкриття уроку:\n${error instanceof Error ? error.message : String(error)}`;
   }
 }
@@ -225,23 +197,13 @@ function applyPortalBackendUiMode() {
       }
     }
   } catch (error) {
-    logError("portal.backend_ui_mode.failed", error);
+    logger.error("portal.backend_ui_mode.failed", error);
   }
 }
 
 function bootstrap() {
-  const savedBackendUrl = authClient.getStoredBackendUrl();
-  if (savedBackendUrl) {
-    elements.baseUrl.value = savedBackendUrl;
-  } else if (authClient.getPublicBackendUrl()) {
-    elements.baseUrl.value = authClient.getPublicBackendUrl();
-  }
-
-  elements.baseUrl.addEventListener("change", () => {
-    const normalized = authClient.normalizeBaseUrl(elements.baseUrl.value);
-    elements.baseUrl.value = normalized;
-    authClient.setBackendUrl(normalized);
-  });
+  sharedUi.populateBackendUrlInput(elements.baseUrl, authClient);
+  sharedUi.bindBackendUrlInput(elements.baseUrl, authClient);
 
   elements.registerButton.addEventListener("click", handleRegister);
   elements.loginButton.addEventListener("click", handleLogin);
