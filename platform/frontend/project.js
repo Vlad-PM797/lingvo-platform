@@ -1,5 +1,7 @@
 const PROJECT_ELEMENTS = {
   baseUrl: document.getElementById("baseUrl"),
+  learningLanguageSelect: document.getElementById("learningLanguageSelect"),
+  learningLanguageHint: document.getElementById("learningLanguageHint"),
   loadCoursesButton: document.getElementById("loadCoursesButton"),
   loadProgressButton: document.getElementById("loadProgressButton"),
   logoutButton: document.getElementById("logoutButton"),
@@ -13,11 +15,8 @@ const PROJECT_ELEMENTS = {
   attemptOutput: document.getElementById("attemptOutput"),
 };
 
-const STORAGE_KEYS = Object.freeze({
-  backendUrl: "lingvo_backend_url",
-  accessToken: "lingvo_access_token",
-  refreshToken: "lingvo_refresh_token",
-});
+const authClient = window.LingvoAuthClient;
+const learningLanguageClient = window.LingvoLearningLanguage;
 
 const PROJECT_MESSAGES = Object.freeze({
   loginRequired: "Сесія відсутня. Увійди ще раз.",
@@ -31,6 +30,45 @@ const projectState = {
   selectedLesson: null,
 };
 
+function getLearningText(item) {
+  return String(item?.learningText || item?.en || "");
+}
+
+function getTranslationText(item) {
+  return String(item?.translationText || item?.ua || "");
+}
+
+function getSelectedLearningLanguage() {
+  if (PROJECT_ELEMENTS.learningLanguageSelect) {
+    return learningLanguageClient.normalizeLanguageCode(PROJECT_ELEMENTS.learningLanguageSelect.value);
+  }
+  return learningLanguageClient.getCurrentLanguage();
+}
+
+function buildLearningQueryString() {
+  const params = new URLSearchParams();
+  params.set("learningLanguage", getSelectedLearningLanguage());
+  params.set("translationLanguage", "ua");
+  return `?${params.toString()}`;
+}
+
+function updateLearningLanguageUi() {
+  const meta = learningLanguageClient.getLanguageMeta(getSelectedLearningLanguage());
+  if (PROJECT_ELEMENTS.answerInput) {
+    PROJECT_ELEMENTS.answerInput.placeholder = meta.answerPlaceholder;
+  }
+  if (PROJECT_ELEMENTS.learningLanguageHint) {
+    PROJECT_ELEMENTS.learningLanguageHint.textContent = meta.code === "it"
+      ? "Основа для Italian вже підключена, але італійські курси ще не додані в контент."
+      : "Зараз доступний англомовний контент. Після підготовки multilingual-контенту тут з'явиться італійська."
+    ;
+  }
+}
+
+function getLearningLanguageName(code) {
+  return learningLanguageClient.getLanguageMeta(code).labelUa;
+}
+
 function logInfo(operationName, payload = {}) {
   console.info(`[INFO] ${operationName}`, payload);
 }
@@ -42,27 +80,14 @@ function logError(operationName, error, payload = {}) {
   });
 }
 
-function normalizeBaseUrl(rawValue) {
-  return String(rawValue || "").trim().replace(/\/+$/, "");
-}
-
 function getBaseUrlOrThrow() {
-  const fromInput = normalizeBaseUrl(PROJECT_ELEMENTS.baseUrl.value);
-  if (fromInput) {
-    return fromInput;
-  }
-  const fromStorage = normalizeBaseUrl(window.localStorage.getItem(STORAGE_KEYS.backendUrl));
-  if (fromStorage) {
-    return fromStorage;
-  }
-  if (typeof window !== "undefined" && window.LINGVO_PUBLIC_BACKEND_URL) {
-    return normalizeBaseUrl(String(window.LINGVO_PUBLIC_BACKEND_URL));
-  }
-  throw new Error("Вкажи Backend URL або задай LINGVO_PUBLIC_BACKEND_URL у lingvoPublicConfig.js.");
+  return authClient.getBaseUrlOrThrow({
+    inputValue: PROJECT_ELEMENTS.baseUrl.value,
+  });
 }
 
 function getAccessTokenOrThrow() {
-  const token = window.localStorage.getItem(STORAGE_KEYS.accessToken);
+  const token = authClient.getAccessToken();
   if (!token) {
     throw new Error(PROJECT_MESSAGES.loginRequired);
   }
@@ -70,39 +95,19 @@ function getAccessTokenOrThrow() {
 }
 
 async function requestAuthJson(path, method = "GET", payload = null) {
-  const baseUrl = getBaseUrlOrThrow();
-  const accessToken = getAccessTokenOrThrow();
-  const requestOptions = {
-    method,
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  };
-  if (payload) {
-    requestOptions.headers["Content-Type"] = "application/json";
-    requestOptions.body = JSON.stringify(payload);
-  }
-
   let response;
   try {
-    response = await fetch(`${baseUrl}${path}`, requestOptions);
+    response = await authClient.request(path, {
+      baseUrl: getBaseUrlOrThrow(),
+      method,
+      body: payload,
+      auth: true,
+    });
   } catch (error) {
     logError("project.request.network_error", error, { path, method });
     throw error;
   }
-
-  const text = await response.text();
-  let data = {};
-  try {
-    data = text ? JSON.parse(text) : {};
-  } catch {
-    data = { raw: text };
-  }
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${JSON.stringify(data)}`);
-  }
-  return data;
+  return response;
 }
 
 function renderCourseOptions() {
@@ -140,12 +145,13 @@ function renderLessonOptions(courseId) {
 async function loadCourses() {
   try {
     logInfo("project.courses.load.attempt");
-    const payload = await requestAuthJson("/learning/courses");
+    const payload = await requestAuthJson(`/learning/courses${buildLearningQueryString()}`);
     projectState.courses = Array.isArray(payload.courses) ? payload.courses : [];
     renderCourseOptions();
 
     if (projectState.courses.length === 0) {
-      PROJECT_ELEMENTS.lessonOutput.textContent = "Курси не знайдено.";
+      const meta = learningLanguageClient.getLanguageMeta(getSelectedLearningLanguage());
+      PROJECT_ELEMENTS.lessonOutput.textContent = `Курси для мови "${meta.labelUa}" ще не додані.`;
       return;
     }
 
@@ -168,7 +174,7 @@ async function handleCourseChange() {
     let lessons = projectState.lessonsByCourseId.get(courseId);
     if (!lessons) {
       logInfo("project.lessons.load.attempt", { courseId });
-      const payload = await requestAuthJson(`/learning/courses/${courseId}/lessons`);
+      const payload = await requestAuthJson(`/learning/courses/${courseId}/lessons${buildLearningQueryString()}`);
       lessons = Array.isArray(payload.lessons) ? payload.lessons : [];
       projectState.lessonsByCourseId.set(courseId, lessons);
       logInfo("project.lessons.load.success", { courseId, count: lessons.length });
@@ -302,11 +308,13 @@ async function openLesson() {
     const words = Array.isArray(lesson.words) ? lesson.words : [];
     const phrases = Array.isArray(lesson.phrases) ? lesson.phrases : [];
 
-    const wordsPreview = words.slice(0, 20).map((item) => `- ${item.en} — ${item.ua}`).join("\n");
-    const phrasesPreview = phrases.slice(0, 14).map((item) => `- ${item.en} — ${item.ua}`).join("\n");
+    const wordsPreview = words.slice(0, 20).map((item) => `- ${getLearningText(item)} — ${getTranslationText(item)}`).join("\n");
+    const phrasesPreview = phrases.slice(0, 14).map((item) => `- ${getLearningText(item)} — ${getTranslationText(item)}`).join("\n");
+    const learningLanguageName = getLearningLanguageName(lesson.learningLanguage || getSelectedLearningLanguage());
 
     PROJECT_ELEMENTS.lessonOutput.textContent = [
       `Урок: ${lesson.title}`,
+      `Мова навчання: ${learningLanguageName}`,
       ``,
       `Опис:`,
       `${lesson.description || "(немає)"}`,
@@ -356,13 +364,15 @@ async function submitAttempt() {
 
   const expectedAnswers = (projectState.selectedLesson.phrases || [])
     .slice(0, 2)
-    .map((item) => item.en)
+    .map((item) => getLearningText(item))
     .filter(Boolean);
   if (expectedAnswers.length === 0) {
     PROJECT_ELEMENTS.attemptOutput.textContent = "Для цього уроку немає фраз для перевірки відповіді.";
     return;
   }
-  const sourceText = (projectState.selectedLesson.phrases || [])[0]?.ua || projectState.selectedLesson.title || "lesson_prompt";
+  const sourceText = getTranslationText((projectState.selectedLesson.phrases || [])[0])
+    || projectState.selectedLesson.title
+    || "lesson_prompt";
 
   try {
     logInfo("project.attempt.submit.attempt", { lessonId: projectState.selectedLesson.id });
@@ -406,35 +416,54 @@ async function loadProgress() {
 }
 
 function logout() {
-  window.localStorage.removeItem(STORAGE_KEYS.accessToken);
-  window.localStorage.removeItem(STORAGE_KEYS.refreshToken);
-  window.location.href = "./remote-test.html";
+  authClient.logout({ baseUrl: getBaseUrlOrThrow() })
+    .catch((error) => {
+      logError("project.logout.failed", error);
+    })
+    .finally(() => {
+      window.location.href = "./remote-test.html";
+    });
 }
 
-function bootstrap() {
-  const savedBackendUrl = window.localStorage.getItem(STORAGE_KEYS.backendUrl);
+async function bootstrap() {
+  const savedBackendUrl = authClient.getStoredBackendUrl();
   if (savedBackendUrl) {
     PROJECT_ELEMENTS.baseUrl.value = savedBackendUrl;
-  } else if (typeof window !== "undefined" && window.LINGVO_PUBLIC_BACKEND_URL) {
-    const pub = normalizeBaseUrl(String(window.LINGVO_PUBLIC_BACKEND_URL));
+  } else if (authClient.getPublicBackendUrl()) {
+    const pub = authClient.getPublicBackendUrl();
     if (pub) {
       PROJECT_ELEMENTS.baseUrl.value = pub;
     }
   }
 
-  const accessToken = window.localStorage.getItem(STORAGE_KEYS.accessToken);
+  const accessToken = await authClient.restoreSession({
+    baseUrl: PROJECT_ELEMENTS.baseUrl.value,
+  });
   if (!accessToken) {
     window.location.href = "./remote-test.html";
     return;
   }
 
   PROJECT_ELEMENTS.baseUrl.addEventListener("change", () => {
-    const normalized = normalizeBaseUrl(PROJECT_ELEMENTS.baseUrl.value);
+    const normalized = authClient.normalizeBaseUrl(PROJECT_ELEMENTS.baseUrl.value);
     PROJECT_ELEMENTS.baseUrl.value = normalized;
-    if (normalized) {
-      window.localStorage.setItem(STORAGE_KEYS.backendUrl, normalized);
-    }
+    authClient.setBackendUrl(normalized);
   });
+
+  if (PROJECT_ELEMENTS.learningLanguageSelect) {
+    PROJECT_ELEMENTS.learningLanguageSelect.value = learningLanguageClient.getCurrentLanguage();
+    PROJECT_ELEMENTS.learningLanguageSelect.addEventListener("change", () => {
+      projectState.courses = [];
+      projectState.lessonsByCourseId = new Map();
+      projectState.selectedLesson = null;
+      updateLearningLanguageUi();
+      void loadCourses();
+    });
+  }
+  window.addEventListener("lingvo-learning-language-changed", () => {
+    updateLearningLanguageUi();
+  });
+  updateLearningLanguageUi();
 
   PROJECT_ELEMENTS.loadCoursesButton.addEventListener("click", () => {
     void loadCourses();
@@ -456,4 +485,4 @@ function bootstrap() {
   void loadCourses();
 }
 
-bootstrap();
+void bootstrap();

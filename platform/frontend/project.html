@@ -25,6 +25,11 @@
       <p class="hint">Тут ти можеш проходити уроки, відправляти відповіді і зберігати прогрес.</p>
       <label class="label" for="baseUrl">Backend URL</label>
       <input id="baseUrl" type="url" placeholder="https://your-backend-domain.com" />
+      <label class="label" for="learningLanguageSelect">Мова навчання</label>
+      <select id="learningLanguageSelect" data-learning-language-select></select>
+      <p class="hint" id="learningLanguageHint">
+        Це foundation для multilingual-режиму: зараз доступний англомовний контент, далі сюди додамо італійські курси.
+      </p>
       <div class="actions-row">
         <button id="loadCoursesButton">Завантажити курси</button>
         <button id="loadProgressButton">Мій прогрес</button>
@@ -85,6 +90,8 @@
 
   <script src="./theme.js"></script>
   <script src="./lingvoPublicConfig.js"></script>
+  <script src="./auth-client.js"></script>
+  <script src="./learning-language.js"></script>
   <script src="./topicLessonVisuals.js"></script>
   <script src="./lessonScenes.js"></script>
   <script src="./project.js"></script>

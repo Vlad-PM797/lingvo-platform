@@ -4,7 +4,7 @@
 - Use OCR output from `E:\EasyEnglish.pdf` to prepare reusable curriculum mapping artifacts.
 - Build a structured mapping from textbook topics to Lingvo lesson codes for import/planning.
 - Keep trainer/page visual style inspired by textbook illustrated cards, but use original unique SVG artwork.
-- Preserve existing file names for lesson artwork so runtime references in `app.bundle.js` stay valid.
+- Preserve existing file names for lesson artwork so runtime references in the trainer modules stay valid.
 
 ## Subtasks
 - [x] Run OCR and extract source text from PDF
@@ -16,7 +16,7 @@
 ## Testing Plan
 - [x] Verify JSON/CSV files open and contain consistent topic IDs
 - [x] Verify `trainer.html` and `project.html` still render lesson images (file name compatibility preserved)
-- [x] Verify `app.bundle.js` resolves existing image filenames
+- [x] Verify the trainer module flow resolves existing image filenames
 - [x] Parse all new SVG files to confirm valid XML
 - [x] Linter check for edited frontend files
 

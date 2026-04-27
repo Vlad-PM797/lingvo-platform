@@ -17,3 +17,4 @@ authRouter.post("/register", asyncHandler((request, response) => authController.
 authRouter.post("/login", asyncHandler((request, response) => authController.login(request, response)));
 authRouter.post("/refresh", asyncHandler((request, response) => authController.refresh(request, response)));
 authRouter.post("/logout", asyncHandler((request, response) => authController.logout(request, response)));
+authRouter.post("/remote-test-access", asyncHandler((request, response) => authController.verifyRemoteTestInvite(request, response)));

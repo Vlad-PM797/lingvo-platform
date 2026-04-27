@@ -1,56 +1,21 @@
 <!doctype html>
 <html lang="uk">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lingvo - English from Zero</title>
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <nav class="local-entry-nav" aria-label="Швидкий вхід">
-      <a href="./platform/frontend/landing.html">Титульна сторінка</a>
-      <span class="local-entry-sep" aria-hidden="true">·</span>
-      <a href="./platform/frontend/portal.html">Портал (вхід / реєстрація)</a>
-    </nav>
-    <main class="app-shell">
-      <header class="app-header">
-        <h1>Lingvo: English from Zero</h1>
-        <p>Тренажер спілкування англійською з нуля</p>
-      </header>
-
-      <section class="status-panel" aria-live="polite">
-        <div class="status-item">Рівень: <span id="levelLabel">A0</span></div>
-        <div class="status-item">Правильних: <span id="correctCount">0</span></div>
-        <div class="status-item">Спроб: <span id="attemptCount">0</span></div>
-      </section>
-
-      <section id="chatContainer" class="chat-container" aria-label="Чат з ботом"></section>
-
-      <section class="controls">
-        <div class="lesson-picker-row">
-          <label class="input-label" for="lessonSelect">Обери урок для старту</label>
-          <div class="lesson-picker-controls">
-            <select id="lessonSelect" aria-label="Вибір уроку"></select>
-            <button id="startLessonButton" type="button">Почати з цього уроку</button>
-          </div>
-        </div>
-        <div id="taskPrompt" class="task-prompt" aria-live="polite">Завантаження завдання...</div>
-        <label class="input-label" for="userInput">Твоя відповідь</label>
-        <div class="input-row">
-          <input id="userInput" type="text" placeholder="Напиши англійською або українською..." autocomplete="off" />
-          <button id="sendButton" type="button">Надіслати</button>
-        </div>
-        <div class="secondary-actions">
-          <button id="dictionaryButton" type="button">Показати словник теми</button>
-          <button id="dictionaryMoreButton" type="button">Показати ще</button>
-          <button id="translationToggleButton" type="button">Ховати підказки перекладу</button>
-          <button id="lessonButton" type="button">Пояснення уроку ще раз</button>
-          <button id="speakButton" type="button">Озвучити останню фразу</button>
-          <button id="resetButton" type="button">Скинути прогрес</button>
-        </div>
-      </section>
-    </main>
-
-    <script src="./js/app.bundle.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <meta http-equiv="refresh" content="0;url=./platform/frontend/trainer.html" />
+  <title>Lingvo</title>
+  <link rel="canonical" href="./platform/frontend/trainer.html" />
+</head>
+<body>
+  <p>Перехід на <a href="./platform/frontend/trainer.html">канонічний тренажер</a>…</p>
+  <script>
+    const target = new URL("./platform/frontend/trainer.html", window.location.href);
+    target.searchParams.set("v", Date.now().toString());
+    window.location.replace(target.toString());
+  </script>
+</body>
 </html>

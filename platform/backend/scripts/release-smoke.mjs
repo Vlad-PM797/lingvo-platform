@@ -1,8 +1,15 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import dotenv from "dotenv";
 import { Pool } from "pg";
 
 const DEFAULT_BASE_URL = "http://127.0.0.1:4015";
 const DEFAULT_PASSWORD = "Password123!";
 const REQUIRED_ENV_KEYS = ["DATABASE_URL"];
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const rootDir = path.join(__dirname, "..");
+
+dotenv.config({ path: path.join(rootDir, ".env") });
 
 function logInfo(message, payload = {}) {
   console.log(JSON.stringify({ level: "info", message, payload, at: new Date().toISOString() }));
@@ -28,10 +35,29 @@ function requireEnv() {
   }
 }
 
-async function requestJson(baseUrl, path, method, payload, token) {
+function getSetCookieHeaders(response) {
+  if (typeof response.headers.getSetCookie === "function") {
+    return response.headers.getSetCookie();
+  }
+  const value = response.headers.get("set-cookie");
+  return value ? [value] : [];
+}
+
+function extractRefreshCookie(response) {
+  const cookieHeader = getSetCookieHeaders(response).find((value) => value.startsWith("lingvo_refresh_token="));
+  if (!cookieHeader) {
+    return "";
+  }
+  return cookieHeader.split(";")[0];
+}
+
+async function requestJson(baseUrl, path, method, payload, token, cookieHeader) {
   const headers = { "Content-Type": "application/json" };
   if (token) {
     headers.Authorization = `Bearer ${token}`;
+  }
+  if (cookieHeader) {
+    headers.Cookie = cookieHeader;
   }
 
   const response = await fetch(`${baseUrl}${path}`, {
@@ -49,7 +75,12 @@ async function requestJson(baseUrl, path, method, payload, token) {
     error.responseBody = body;
     throw error;
   }
-  return { status: response.status, body, headers: response.headers };
+  return {
+    status: response.status,
+    body,
+    headers: response.headers,
+    refreshCookie: extractRefreshCookie(response),
+  };
 }
 
 async function assertStatus(baseUrl, path, expectedStatus) {
@@ -94,10 +125,11 @@ async function run() {
 
     const userLogin = await requestJson(baseUrl, "/auth/login", "POST", { email: userEmail, password });
     const userAccessToken = userLogin.body.accessToken;
-    const userRefreshToken = userLogin.body.refreshToken;
+    let userRefreshCookie = userLogin.refreshCookie;
 
-    const refreshResponse = await requestJson(baseUrl, "/auth/refresh", "POST", { refreshToken: userRefreshToken });
-    await requestJson(baseUrl, "/auth/logout", "POST", { refreshToken: refreshResponse.body.refreshToken });
+    const refreshResponse = await requestJson(baseUrl, "/auth/refresh", "POST", {}, undefined, userRefreshCookie);
+    userRefreshCookie = refreshResponse.refreshCookie || userRefreshCookie;
+    await requestJson(baseUrl, "/auth/logout", "POST", {}, undefined, userRefreshCookie);
     logInfo("release_smoke.auth.refresh_logout.passed");
 
     const userRelogin = await requestJson(baseUrl, "/auth/login", "POST", { email: userEmail, password });
@@ -132,6 +164,41 @@ async function run() {
       throw new Error("Progress rows were not created");
     }
     logInfo("release_smoke.learning_progress.passed");
+
+    const italianCoursesResponse = await requestJson(
+      baseUrl,
+      "/learning/courses?learningLanguage=it&translationLanguage=ua",
+      "GET",
+      undefined,
+      activeUserToken,
+    );
+    if (!Array.isArray(italianCoursesResponse.body.courses) || italianCoursesResponse.body.courses.length === 0) {
+      throw new Error("No Italian courses returned from learning API");
+    }
+
+    const firstItalianCourse = italianCoursesResponse.body.courses[0];
+    const firstItalianLesson = firstItalianCourse.lessons?.[0];
+    if (!firstItalianLesson?.id) {
+      throw new Error("No Italian lessons returned in first Italian course");
+    }
+
+    await requestJson(
+      baseUrl,
+      "/learning/attempts",
+      "POST",
+      {
+        lessonId: firstItalianLesson.id,
+        promptType: "translate_ua_to_it",
+        sourceText: "привіт",
+        expectedAnswers: ["ciao"],
+        userAnswer: "ciao",
+      },
+      activeUserToken,
+    );
+    logInfo("release_smoke.learning_italian.passed", {
+      courseId: firstItalianCourse.id,
+      lessonId: firstItalianLesson.id,
+    });
 
     const adminLogin = await requestJson(baseUrl, "/auth/login", "POST", { email: adminEmail, password });
     const adminToken = adminLogin.body.accessToken;

@@ -1,8 +1,10 @@
 # lingvo-platform
 Платформа для вивчення англійської мови
 
+- Канонічний frontend-код живе в **`platform/frontend`**.
 - Відкриття **`index.html`** у корені репозиторію веде на **титульну** (`platform/frontend/landing.html`).
-- Окремий **тренажер без редіректу**: `trainer.html` у корені.
+- **`trainer.html`** у корені репозиторію тепер теж є лише compatibility-wrapper і редіректить на **`platform/frontend/trainer.html`**.
+- Кореневі frontend-файли слід вважати legacy-wrapper шаром для локального входу, а не основним місцем розробки.
 
 ## Публічний перегляд (GitHub Pages)
 
@@ -15,8 +17,10 @@
    - **вхід для тестувальників** (лише email + пароль, без ручного вводу API): `https://vlad-pm797.github.io/lingvo-platform/remote-test.html`  
    - платформа після входу: `https://vlad-pm797.github.io/lingvo-platform/project.html`
 
-> Статичні сторінки; API тренажера з `app.bundle.js` працює офлайн.  
-> Публічний URL бекенду задається у `platform/frontend/lingvoPublicConfig.js` (`LINGVO_PUBLIC_BACKEND_URL`). За потреби обмеж доступ лише «секретним» посиланням: задай `LINGVO_REMOTE_TEST_INVITE_KEY` і відкривай `remote-test.html?invite=<ключ>`.
+> Важливо: у GitHub Pages публікується саме директорія **`platform/frontend`** як корінь `gh-pages`, тому публічні URL лишаються короткими (`/landing.html`, `/trainer.html`, `/project.html`) навіть попри те, що в репозиторії канонічний код лежить у `platform/frontend`.
+
+> Статичні сторінки працюють через канонічний frontend у `platform/frontend`, а тренажер тепер використовує модульний JS-flow замість старого `app.bundle.js`.  
+> Публічний URL бекенду задається у `platform/frontend/lingvoPublicConfig.js` (`LINGVO_PUBLIC_BACKEND_URL`). За потреби обмеж доступ до `remote-test.html` через backend env `REMOTE_TEST_INVITE_KEY`.
 
 ## Віддалені тестувальники
 

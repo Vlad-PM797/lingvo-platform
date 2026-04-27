@@ -10,6 +10,8 @@ export interface LessonRecord {
   title: string;
   description: string;
   ordinal: number;
+  learning_language_code: string;
+  translation_language_code: string;
 }
 
 export interface LessonWordRecord {
@@ -25,7 +27,7 @@ export interface LessonPhraseRecord {
 }
 
 const QUERY_ACTIVE_LESSON_BY_ID = `
-  SELECT id, course_id, code, title, description, ordinal
+  SELECT id, course_id, code, title, description, ordinal, learning_language_code, translation_language_code
   FROM lessons
   WHERE id = $1 AND is_active = TRUE
   LIMIT 1

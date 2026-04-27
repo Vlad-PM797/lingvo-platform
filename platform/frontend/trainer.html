@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lingvo - English from Zero</title>
+    <title>Lingvo - Language Trainer</title>
     <link rel="stylesheet" href="./styles.css" />
     <link rel="stylesheet" href="./trainer.css" />
     <link rel="stylesheet" href="./topic-lesson-visuals.css" />
@@ -22,12 +22,16 @@
     </header>
     <main class="app-shell">
       <header class="app-header">
-        <h1>Lingvo: English from Zero</h1>
-        <p>Тренажер спілкування англійською з нуля</p>
+        <h1>Lingvo: Language from Zero</h1>
+        <p>Тренажер спілкування з нуля</p>
         <div class="trainer-top-tools">
           <div class="trainer-owl-badge" role="img" aria-label="Сова">
             <span class="trainer-owl-icon" aria-hidden="true">🦉</span>
           </div>
+          <label class="trainer-variant-label" for="trainerLearningLanguageSelect">
+            Мова навчання:
+            <select id="trainerLearningLanguageSelect" class="trainer-variant-select" data-learning-language-select></select>
+          </label>
           <label class="trainer-variant-label" for="trainerVariantSelect">
             Стиль тренажера:
             <select id="trainerVariantSelect" class="trainer-variant-select">
@@ -85,7 +89,7 @@
         <div id="taskPrompt" class="task-prompt" aria-live="polite">Завантаження завдання...</div>
         <label class="input-label" for="userInput">Твоя відповідь</label>
         <div class="input-row">
-          <input id="userInput" type="text" placeholder="Напиши англійською або українською..." autocomplete="off" />
+          <input id="userInput" type="text" placeholder="Напиши мовою уроку або українською..." autocomplete="off" />
           <button id="sendButton" type="button">Надіслати</button>
         </div>
         <div class="secondary-actions">
@@ -100,9 +104,10 @@
     </main>
 
     <script src="./theme.js"></script>
+    <script src="./learning-language.js"></script>
     <script src="./topicLessonVisuals.js"></script>
-    <script src="./js/app.bundle.js"></script>
     <script src="./lessonScenes.js"></script>
+    <script type="module" src="./js/main.js"></script>
     <script>
       (function () {
         const STORAGE_KEY = "lingvo_trainer_variant";
@@ -134,6 +139,7 @@
         const sceneMount = document.getElementById("trainerSceneMount");
         const mainStage = document.querySelector(".trainer-main-stage");
         const lessonSelect = document.getElementById("lessonSelect");
+        const learningLanguageSelect = document.getElementById("trainerLearningLanguageSelect");
         const startLessonButton = document.getElementById("startLessonButton");
         if (!sceneMount || !lessonSelect) {
           return;
@@ -151,7 +157,13 @@
           if (label.includes("урок 1") || label.includes("lesson 1") || label.includes("basics")) {
             return "lesson1";
           }
+          if (label.includes("basi 01") || value.includes("it-a0-basics-01")) {
+            return "lesson1";
+          }
           if (label.includes("урок 2") || label.includes("lesson 2")) {
+            return "lesson2";
+          }
+          if (label.includes("lezione 02") || value.includes("it-a0-basics-02")) {
             return "lesson2";
           }
           if (value.includes("a0-basics-01")) {
@@ -245,6 +257,9 @@
         }
 
         lessonSelect.addEventListener("change", renderScenes);
+        learningLanguageSelect?.addEventListener("change", function () {
+          window.location.reload();
+        });
         startLessonButton?.addEventListener("click", function () {
           window.setTimeout(renderScenes, 30);
         });

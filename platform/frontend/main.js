@@ -14,11 +14,7 @@ const elements = {
   learningOutput: document.getElementById("learningOutput"),
 };
 
-const STORAGE_KEYS = Object.freeze({
-  backendUrl: "lingvo_backend_url",
-  accessToken: "lingvo_access_token",
-  refreshToken: "lingvo_refresh_token",
-});
+const authClient = window.LingvoAuthClient;
 
 const appState = {
   courses: [],
@@ -41,77 +37,16 @@ function setOutput(text, mode = "info") {
   elements.output.textContent = text;
 }
 
-function normalizeBaseUrl(rawValue) {
-  return String(rawValue || "").trim().replace(/\/+$/, "");
-}
-
 function resolveBackendUrlForPortal() {
-  const fromInput = elements.baseUrl ? normalizeBaseUrl(elements.baseUrl.value) : "";
-  if (fromInput) {
-    return fromInput;
-  }
-  const fromStorage = normalizeBaseUrl(window.localStorage.getItem(STORAGE_KEYS.backendUrl));
-  if (fromStorage) {
-    return fromStorage;
-  }
-  if (typeof window !== "undefined" && window.LINGVO_PUBLIC_BACKEND_URL) {
-    return normalizeBaseUrl(String(window.LINGVO_PUBLIC_BACKEND_URL));
-  }
-  return "";
+  return authClient.resolveBackendUrl({
+    inputValue: elements.baseUrl ? elements.baseUrl.value : "",
+  });
 }
 
 function getBaseUrlOrThrow() {
-  const url = resolveBackendUrlForPortal();
-  if (!url) {
-    throw new Error("Вкажи Backend URL або задай LINGVO_PUBLIC_BACKEND_URL у lingvoPublicConfig.js.");
-  }
-  return url;
-}
-
-async function requestJson(path, payload) {
-  const baseUrl = getBaseUrlOrThrow();
-  const response = await fetch(`${baseUrl}${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+  return authClient.getBaseUrlOrThrow({
+    inputValue: elements.baseUrl ? elements.baseUrl.value : "",
   });
-  const text = await response.text();
-  let data = {};
-  try {
-    data = text ? JSON.parse(text) : {};
-  } catch {
-    data = { raw: text };
-  }
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${JSON.stringify(data)}`);
-  }
-  return data;
-}
-
-async function requestAuthJson(path) {
-  const baseUrl = getBaseUrlOrThrow();
-  const accessToken = window.localStorage.getItem(STORAGE_KEYS.accessToken);
-  if (!accessToken) {
-    throw new Error("Спочатку увійди в систему.");
-  }
-
-  const response = await fetch(`${baseUrl}${path}`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-  const text = await response.text();
-  let data = {};
-  try {
-    data = text ? JSON.parse(text) : {};
-  } catch {
-    data = { raw: text };
-  }
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${JSON.stringify(data)}`);
-  }
-  return data;
 }
 
 async function handleRegister() {
@@ -123,7 +58,7 @@ async function handleRegister() {
     }
 
     logInfo("auth.register.attempt", { email });
-    const result = await requestJson("/auth/register", { email, password });
+    const result = await authClient.register({ email, password }, { baseUrl: getBaseUrlOrThrow() });
     logInfo("auth.register.success", { email });
     setOutput(`Користувач створений:\n${JSON.stringify(result, null, 2)}`, "ok");
   } catch (error) {
@@ -141,15 +76,9 @@ async function handleLogin() {
     }
 
     logInfo("auth.login.attempt", { email });
-    const result = await requestJson("/auth/login", { email, password });
-    if (result.accessToken) {
-      window.localStorage.setItem(STORAGE_KEYS.accessToken, result.accessToken);
-    }
-    if (result.refreshToken) {
-      window.localStorage.setItem(STORAGE_KEYS.refreshToken, result.refreshToken);
-    }
+    const result = await authClient.login({ email, password }, { baseUrl: getBaseUrlOrThrow() });
     logInfo("auth.login.success", { email });
-    setOutput(`Вхід успішний. Токени збережено локально.\n${JSON.stringify(result, null, 2)}`, "ok");
+    setOutput(`Вхід успішний. Сесію створено.\n${JSON.stringify(result, null, 2)}`, "ok");
     elements.learningOutput.textContent = "Вхід успішний. Натисни \"Завантажити курси\".";
     window.setTimeout(() => {
       redirectToProjectPage();
@@ -188,7 +117,10 @@ function renderLessonOptions(courseId) {
 async function handleLoadCourses() {
   try {
     logInfo("learning.courses.load.attempt");
-    const payload = await requestAuthJson("/learning/courses");
+    const payload = await authClient.request("/learning/courses", {
+      baseUrl: getBaseUrlOrThrow(),
+      auth: true,
+    });
     appState.courses = Array.isArray(payload.courses) ? payload.courses : [];
     renderCourseOptions();
     if (appState.courses.length === 0) {
@@ -211,7 +143,10 @@ async function handleCourseChange() {
     logInfo("learning.lessons.load.attempt", { courseId });
     let lessons = appState.lessonsByCourseId.get(courseId);
     if (!lessons) {
-      const payload = await requestAuthJson(`/learning/courses/${courseId}/lessons`);
+      const payload = await authClient.request(`/learning/courses/${courseId}/lessons`, {
+        baseUrl: getBaseUrlOrThrow(),
+        auth: true,
+      });
       lessons = Array.isArray(payload.lessons) ? payload.lessons : [];
       appState.lessonsByCourseId.set(courseId, lessons);
     }
@@ -231,13 +166,17 @@ async function handleOpenLesson() {
   }
   try {
     logInfo("learning.lesson.open.attempt", { lessonId });
-    const lesson = await requestAuthJson(`/learning/lessons/${lessonId}`);
+    const lesson = await authClient.request(`/learning/lessons/${lessonId}`, {
+      baseUrl: getBaseUrlOrThrow(),
+      auth: true,
+    });
     const words = Array.isArray(lesson.words) ? lesson.words : [];
     const phrases = Array.isArray(lesson.phrases) ? lesson.phrases : [];
-    const wordsPreview = words.slice(0, 12).map((item) => `- ${item.englishText} — ${item.translationUa}`).join("\n");
-    const phrasesPreview = phrases.slice(0, 8).map((item) => `- ${item.englishText} — ${item.translationUa}`).join("\n");
+    const wordsPreview = words.slice(0, 12).map((item) => `- ${item.learningText || item.en} — ${item.translationText || item.ua}`).join("\n");
+    const phrasesPreview = phrases.slice(0, 8).map((item) => `- ${item.learningText || item.en} — ${item.translationText || item.ua}`).join("\n");
     elements.learningOutput.textContent = [
       `Урок: ${lesson.title}`,
+      `Мова навчання: ${lesson.learningLanguage || "en"}`,
       ``,
       `Матеріал:`,
       `${lesson.materialUa || "(немає)"}`,
@@ -259,11 +198,7 @@ async function handleOpenLesson() {
 
 function applyPortalBackendUiMode() {
   try {
-    const publicUrl = normalizeBaseUrl(
-      typeof window !== "undefined" && window.LINGVO_PUBLIC_BACKEND_URL
-        ? String(window.LINGVO_PUBLIC_BACKEND_URL)
-        : "",
-    );
+    const publicUrl = authClient.getPublicBackendUrl();
     const advanced = new URLSearchParams(window.location.search).has("advanced");
     const card = document.getElementById("portalBackendCard");
     const summaryCard = document.getElementById("portalBackendSummaryCard");
@@ -273,7 +208,7 @@ function applyPortalBackendUiMode() {
     }
     if (publicUrl && !advanced) {
       elements.baseUrl.value = publicUrl;
-      window.localStorage.setItem(STORAGE_KEYS.backendUrl, publicUrl);
+      authClient.setBackendUrl(publicUrl);
       if (card) {
         card.hidden = true;
       }
@@ -295,19 +230,17 @@ function applyPortalBackendUiMode() {
 }
 
 function bootstrap() {
-  const savedBackendUrl = window.localStorage.getItem(STORAGE_KEYS.backendUrl);
+  const savedBackendUrl = authClient.getStoredBackendUrl();
   if (savedBackendUrl) {
     elements.baseUrl.value = savedBackendUrl;
-  } else if (window.LINGVO_PUBLIC_BACKEND_URL) {
-    elements.baseUrl.value = normalizeBaseUrl(String(window.LINGVO_PUBLIC_BACKEND_URL));
+  } else if (authClient.getPublicBackendUrl()) {
+    elements.baseUrl.value = authClient.getPublicBackendUrl();
   }
 
   elements.baseUrl.addEventListener("change", () => {
-    const normalized = normalizeBaseUrl(elements.baseUrl.value);
+    const normalized = authClient.normalizeBaseUrl(elements.baseUrl.value);
     elements.baseUrl.value = normalized;
-    if (normalized) {
-      window.localStorage.setItem(STORAGE_KEYS.backendUrl, normalized);
-    }
+    authClient.setBackendUrl(normalized);
   });
 
   elements.registerButton.addEventListener("click", handleRegister);

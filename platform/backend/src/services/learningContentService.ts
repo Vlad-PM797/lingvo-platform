@@ -7,57 +7,90 @@ import { lessonSceneRepository, type LessonDialogueSceneRecord } from "../reposi
 import { logger } from "../utils/logger";
 
 export class LearningContentService {
-  async getCoursesWithLessons(): Promise<
+  async getCoursesWithLessons(filters: { learningLanguage?: string; translationLanguage?: string } = {}): Promise<
     Array<{
       id: string;
       code: string;
       title: string;
       description: string;
+      learningLanguage: string;
+      translationLanguage: string;
       lessons: Array<{
         id: string;
         code: string;
         title: string;
         description: string;
         ordinal: number;
+        learningLanguage: string;
+        translationLanguage: string;
+        learningLanguageLabel: string;
       }>;
     }>
   > {
-    const courses = await courseRepository.getActiveCourses();
+    const courses = await courseRepository.getActiveCourses(filters);
     return Promise.all(
       courses.map(async (course) => {
-        const lessons = await courseRepository.getActiveLessonsByCourseId(course.id);
+        const lessons = await courseRepository.getActiveLessonsByCourseId(course.id, filters);
         return {
           id: course.id,
           code: course.code,
           title: course.title,
           description: course.description,
+          learningLanguage: course.learning_language_code,
+          translationLanguage: course.translation_language_code,
           lessons: lessons.map((lesson) => ({
             id: lesson.id,
             code: lesson.code,
             title: lesson.title,
             description: lesson.description,
             ordinal: lesson.ordinal,
+            learningLanguage: lesson.learning_language_code,
+            translationLanguage: lesson.translation_language_code,
+            learningLanguageLabel: lesson.learning_language_code,
           })),
         };
       }),
     );
   }
 
-  async getLessonsByCourseId(courseId: string): Promise<{
-    course: { id: string; code: string; title: string; description: string };
-    lessons: Array<{ id: string; code: string; title: string; description: string; ordinal: number }>;
+  async getLessonsByCourseId(
+    courseId: string,
+    filters: { learningLanguage?: string; translationLanguage?: string } = {},
+  ): Promise<{
+    course: {
+      id: string;
+      code: string;
+      title: string;
+      description: string;
+      learningLanguage: string;
+      translationLanguage: string;
+      learningLanguageLabel: string;
+    };
+    lessons: Array<{
+      id: string;
+      code: string;
+      title: string;
+      description: string;
+      ordinal: number;
+      learningLanguage: string;
+      translationLanguage: string;
+      learningLanguageLabel: string;
+    }>;
   }> {
     const course = await courseRepository.findActiveCourseById(courseId);
     if (!course) {
       throw new HttpError(404, LEARNING_ERROR_MESSAGES.courseNotFound);
     }
-    const lessons = await courseRepository.getActiveLessonsByCourseId(courseId);
+    const lessons = await courseRepository.getActiveLessonsByCourseId(courseId, filters);
     return {
       course: {
         id: course.id,
         code: course.code,
         title: course.title,
         description: course.description,
+        learningLanguage: course.learning_language_code,
+        translationLanguage: course.translation_language_code,
+        learningLanguageLabel: course.learning_language_code,
       },
       lessons: lessons.map((lesson) => ({
         id: lesson.id,
@@ -65,6 +98,9 @@ export class LearningContentService {
         title: lesson.title,
         description: lesson.description,
         ordinal: lesson.ordinal,
+        learningLanguage: lesson.learning_language_code,
+        translationLanguage: lesson.translation_language_code,
+        learningLanguageLabel: lesson.learning_language_code,
       })),
     };
   }
@@ -76,8 +112,26 @@ export class LearningContentService {
     description: string;
     ordinal: number;
     courseId: string;
-    words: Array<{ en: string; ua: string; ordinal: number }>;
-    phrases: Array<{ en: string; ua: string; ordinal: number }>;
+    learningLanguage: string;
+    translationLanguage: string;
+    words: Array<{
+      en: string;
+      ua: string;
+      learningText: string;
+      translationText: string;
+      learningLanguage: string;
+      translationLanguage: string;
+      ordinal: number;
+    }>;
+    phrases: Array<{
+      en: string;
+      ua: string;
+      learningText: string;
+      translationText: string;
+      learningLanguage: string;
+      translationLanguage: string;
+      ordinal: number;
+    }>;
     dialogueScenes: Array<{
       dialogueIndex: number;
       promptType: string | null;
@@ -128,8 +182,26 @@ export class LearningContentService {
       description: lesson.description,
       ordinal: lesson.ordinal,
       courseId: lesson.course_id,
-      words: words.map((word) => ({ en: word.en_text, ua: word.ua_text, ordinal: word.ordinal })),
-      phrases: phrases.map((phrase) => ({ en: phrase.en_text, ua: phrase.ua_text, ordinal: phrase.ordinal })),
+      learningLanguage: lesson.learning_language_code,
+      translationLanguage: lesson.translation_language_code,
+      words: words.map((word) => ({
+        en: word.en_text,
+        ua: word.ua_text,
+        learningText: word.en_text,
+        translationText: word.ua_text,
+        learningLanguage: lesson.learning_language_code,
+        translationLanguage: lesson.translation_language_code,
+        ordinal: word.ordinal,
+      })),
+      phrases: phrases.map((phrase) => ({
+        en: phrase.en_text,
+        ua: phrase.ua_text,
+        learningText: phrase.en_text,
+        translationText: phrase.ua_text,
+        learningLanguage: lesson.learning_language_code,
+        translationLanguage: lesson.translation_language_code,
+        ordinal: phrase.ordinal,
+      })),
       dialogueScenes,
     };
   }

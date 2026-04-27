@@ -7,7 +7,7 @@ const REQUIRED_ROUTES = Object.freeze([
   Object.freeze({ path: "/landing", expectedContentType: "text/html" }),
   Object.freeze({ path: "/trainer", expectedContentType: "text/html" }),
   Object.freeze({ path: "/main.js", expectedContentType: "javascript" }),
-  Object.freeze({ path: "/js/app.bundle.js", expectedContentType: "javascript" }),
+  Object.freeze({ path: "/js/main.js", expectedContentType: "javascript" }),
   Object.freeze({ path: "/theme.js", expectedContentType: "javascript" }),
   Object.freeze({ path: "/project", expectedContentType: "text/html" }),
   Object.freeze({ path: "/fonts/Rutenia2008.woff2", expectedContentType: "woff2" }),

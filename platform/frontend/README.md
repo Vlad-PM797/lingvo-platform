@@ -36,5 +36,5 @@ Smoke-check валідовує критичні маршрути:
 - `/trainer`
 - `/project`
 - `/main.js`
-- `/js/app.bundle.js`
+- `/js/main.js`
 - `/theme.js`

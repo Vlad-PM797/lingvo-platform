@@ -1,7 +1,9 @@
 import { z } from "zod";
 import { LEARNING_CONSTANTS } from "../config/learningConstants";
+import { LANGUAGE_CONSTANTS } from "../config/languageConstants";
 
 const UUID_SCHEMA = z.string().uuid();
+const languageCodeSchema = z.string().trim().toLowerCase().regex(/^[a-z]{2}$/);
 
 export const courseIdParamsSchema = z.object({
   courseId: UUID_SCHEMA,
@@ -9,6 +11,18 @@ export const courseIdParamsSchema = z.object({
 
 export const lessonIdParamsSchema = z.object({
   lessonId: UUID_SCHEMA,
+});
+
+export const learningContentQuerySchema = z.object({
+  learningLanguage: languageCodeSchema
+    .refine((value) => LANGUAGE_CONSTANTS.supportedLearningLanguages.includes(value), "Unsupported learning language")
+    .optional(),
+  translationLanguage: languageCodeSchema
+    .refine(
+      (value) => LANGUAGE_CONSTANTS.supportedTranslationLanguages.includes(value),
+      "Unsupported translation language",
+    )
+    .optional(),
 });
 
 export const submitAttemptSchema = z.object({

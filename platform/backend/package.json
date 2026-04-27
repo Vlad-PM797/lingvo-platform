@@ -9,11 +9,12 @@
     "build": "tsc -p tsconfig.json",
     "migrate": "node scripts/apply-migrations.mjs",
     "start": "node dist/server.js",
+    "test": "tsx --test src/**/*.test.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "preflight:prod": "node scripts/preflight-prod.mjs",
     "smoke:release": "node scripts/release-smoke.mjs",
-    "verify:release": "npm run typecheck && npm run build && npm run smoke:release",
-    "verify:prod-ready": "npm run typecheck && npm run build && npm run preflight:prod"
+    "verify:release": "npm run test && npm run typecheck && npm run build && npm run smoke:release",
+    "verify:prod-ready": "npm run test && npm run typecheck && npm run build && npm run preflight:prod"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

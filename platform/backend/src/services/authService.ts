@@ -5,6 +5,7 @@ import { env } from "../config/env";
 import { sessionRepository } from "../repositories/sessionRepository";
 import { userRepository } from "../repositories/userRepository";
 import { HttpError } from "../middleware/errorHandler";
+import { parseAccessTtlToSeconds } from "../utils/authTokenUtils";
 
 interface AccessTokenPayload {
   sub: string;
@@ -17,6 +18,17 @@ interface RefreshTokenPayload {
 }
 
 export class AuthService {
+  verifyRemoteTestInvite(inviteKey: string): { allowed: boolean } {
+    const requiredInviteKey = env.remoteTestInviteKey;
+    if (!requiredInviteKey) {
+      return { allowed: true };
+    }
+
+    return {
+      allowed: inviteKey.trim() === requiredInviteKey,
+    };
+  }
+
   async register(email: string, password: string): Promise<{ userId: string; email: string }> {
     const existingUser = await userRepository.findByEmail(email);
     if (existingUser) {
@@ -79,7 +91,7 @@ export class AuthService {
 
   private signAccessToken(userId: string): string {
     return jwt.sign({ sub: userId, typ: "access" }, env.jwtAccessSecret, {
-      expiresIn: this.parseAccessTtlToSeconds(env.jwtAccessTtl),
+      expiresIn: parseAccessTtlToSeconds(env.jwtAccessTtl),
     });
   }
 
@@ -103,33 +115,6 @@ export class AuthService {
 
   private hashToken(token: string): string {
     return crypto.createHash("sha256").update(token).digest("hex");
-  }
-
-  private parseAccessTtlToSeconds(accessTtl: string): number {
-    const ttlValue = accessTtl.trim().toLowerCase();
-    if (/^\d+$/.test(ttlValue)) {
-      return Number(ttlValue);
-    }
-
-    const matched = ttlValue.match(/^(\d+)(s|m|h|d)$/);
-    if (!matched) {
-      return 15 * 60;
-    }
-
-    const amount = Number(matched[1]);
-    const unit = matched[2];
-    switch (unit) {
-      case "s":
-        return amount;
-      case "m":
-        return amount * 60;
-      case "h":
-        return amount * 60 * 60;
-      case "d":
-        return amount * 24 * 60 * 60;
-      default:
-        return 15 * 60;
-    }
   }
 }
 

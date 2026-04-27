@@ -12,6 +12,7 @@ const envSchema = z.object({
   JWT_REFRESH_SECRET: z.string().min(1),
   JWT_ACCESS_TTL: z.string().default("15m"),
   JWT_REFRESH_TTL_DAYS: z.string().default("30"),
+  REMOTE_TEST_INVITE_KEY: z.string().default(""),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -28,4 +29,5 @@ export const env = {
   jwtRefreshSecret: parsed.data.JWT_REFRESH_SECRET,
   jwtAccessTtl: parsed.data.JWT_ACCESS_TTL,
   jwtRefreshTtlDays: Number(parsed.data.JWT_REFRESH_TTL_DAYS),
+  remoteTestInviteKey: parsed.data.REMOTE_TEST_INVITE_KEY.trim(),
 };

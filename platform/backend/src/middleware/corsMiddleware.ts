@@ -21,6 +21,11 @@ export function corsMiddleware(request: Request, response: Response, next: NextF
   if (origin && isOriginAllowed(origin)) {
     response.setHeader("Access-Control-Allow-Origin", origin);
     response.setHeader("Vary", "Origin");
+    response.setHeader("Access-Control-Allow-Credentials", "true");
+  } else if (env.corsAllowedOrigins.includes(ALLOW_ALL) && origin) {
+    response.setHeader("Access-Control-Allow-Origin", origin);
+    response.setHeader("Vary", "Origin");
+    response.setHeader("Access-Control-Allow-Credentials", "true");
   } else if (env.corsAllowedOrigins.includes(ALLOW_ALL)) {
     response.setHeader("Access-Control-Allow-Origin", ALLOW_ALL);
   }
