@@ -1,5 +1,15 @@
 import { APP_CONFIG, UI_TEXT } from "./config.js";
-import { EN_UA_GLOSSARY, LESSON_MATERIALS, LESSON_STEPS, PROJECT_INTROS } from "./content.js";
+import { LESSON_MATERIALS, LESSON_STEPS, PROJECT_INTROS } from "./content.js";
+import {
+  applyHintsVisibilityClass,
+  buildPhraseListMessage,
+  buildWordListMessage,
+  getInputPlaceholder,
+  getLearningText,
+  getTranslationText,
+  getTranslationToggleButtonLabel,
+  renderTextWithGlossary,
+} from "./ui-helpers.js";
 
 const SHORT_WORD_TEST_COUNT = 10;
 const SHORT_PHRASE_TEST_COUNT = 8;
@@ -440,19 +450,11 @@ export class TutorController {
   }
 
   buildWordListMessage(projectName, words) {
-    const lines = [`Словник теми ${projectName} (${APP_CONFIG.LEARNING_LANGUAGE_LABEL_UA} - українська):`];
-    for (const wordItem of words) {
-      lines.push(`- ${this.getLearningText(wordItem)} - ${this.getTranslationText(wordItem)}`);
-    }
-    return lines.join("\n");
+    return buildWordListMessage(projectName, words);
   }
 
   buildPhraseListMessage(projectName, phrases) {
-    const lines = [`Фрази теми ${projectName} (${APP_CONFIG.LEARNING_LANGUAGE_LABEL_UA} - українська):`];
-    for (const phraseItem of phrases) {
-      lines.push(`- ${this.getLearningText(phraseItem)} - ${this.getTranslationText(phraseItem)}`);
-    }
-    return lines.join("\n");
+    return buildPhraseListMessage(projectName, phrases);
   }
 
   showDictionaryPage(projectName) {
@@ -611,11 +613,11 @@ export class TutorController {
   }
 
   getLearningText(item) {
-    return item.learningText || item.en || "";
+    return getLearningText(item);
   }
 
   getTranslationText(item) {
-    return item.translationText || item.ua || "";
+    return getTranslationText(item);
   }
 
   refreshLevel() {
@@ -641,7 +643,7 @@ export class TutorController {
     const messageElement = document.createElement("article");
     messageElement.className = `message ${role}`;
     if (role === "bot") {
-      this.renderTextWithGlossary(messageElement, text);
+      renderTextWithGlossary(messageElement, text, this.translationHintsEnabled);
     } else {
       messageElement.textContent = text;
     }
@@ -649,55 +651,16 @@ export class TutorController {
     this.elements.chatContainer.scrollTop = this.elements.chatContainer.scrollHeight;
   }
 
-  renderTextWithGlossary(containerElement, sourceText) {
-    if (!this.translationHintsEnabled) {
-      containerElement.textContent = sourceText;
-      return;
-    }
-
-    const escapedText = this.escapeHtml(sourceText);
-    const lines = escapedText.split("\n");
-    const sortedEntries = Object.entries(EN_UA_GLOSSARY)
-      .map(([phrase, translation]) => [phrase.toLowerCase(), translation])
-      .sort((a, b) => b[0].length - a[0].length);
-    const phrasePattern = sortedEntries.map(([phrase]) => this.escapeRegex(this.escapeHtml(phrase))).join("|");
-    const phraseRegex = phrasePattern ? new RegExp(`\\b(?:${phrasePattern})\\b`, "gi") : null;
-    const glossaryMap = new Map(sortedEntries);
-
-    const transformedLines = lines.map((line) => {
-      if (!phraseRegex) {
-        return line;
-      }
-
-      return line.replace(phraseRegex, (matchedText) => {
-        const translation = glossaryMap.get(matchedText.toLowerCase());
-        if (!translation) {
-          return matchedText;
-        }
-
-        return `<span class="hint-word" data-ua="${this.escapeAttribute(translation)}">${matchedText}</span>`;
-      });
-    });
-
-    containerElement.innerHTML = transformedLines.join("<br>");
-  }
-
   applyHintsVisibilityClass() {
-    const bodyClassList = document.body.classList;
-    if (this.translationHintsEnabled) {
-      bodyClassList.remove("hints-disabled");
-    } else {
-      bodyClassList.add("hints-disabled");
-    }
+    applyHintsVisibilityClass(this.translationHintsEnabled);
   }
 
   updateTranslationToggleButtonLabel() {
     const buttonElement = this.elements.translationToggleButton;
+    buttonElement.textContent = getTranslationToggleButtonLabel(this.translationHintsEnabled);
     if (this.translationHintsEnabled) {
-      buttonElement.textContent = "Ховати підказки перекладу";
       buttonElement.classList.remove("is-off");
     } else {
-      buttonElement.textContent = "Показувати підказки перекладу";
       buttonElement.classList.add("is-off");
     }
   }
@@ -706,27 +669,13 @@ export class TutorController {
     if (!this.elements.userInput) {
       return;
     }
-    this.elements.userInput.placeholder = `Напиши ${APP_CONFIG.LEARNING_LANGUAGE_LABEL_UA} або українською...`;
+    this.elements.userInput.placeholder = getInputPlaceholder();
   }
 
   setTaskPrompt(taskText) {
     this.elements.taskPrompt.textContent = taskText;
   }
 
-  escapeHtml(value) {
-    return String(value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
-  }
-
-  escapeAttribute(value) {
-    return String(value).replace(/"/g, "&quot;");
-  }
-
-  escapeRegex(value) {
-    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  }
 }
 
 export { TutorController as EnglishTutorController };
