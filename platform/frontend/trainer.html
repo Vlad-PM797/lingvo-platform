@@ -10,30 +10,30 @@
   </head>
   <body>
     <header class="portal-top portal-top--trainer">
-      <nav class="portal-nav-cluster" aria-label="Розділи">
-        <a class="portal-home-link" href="./landing.html">Головна</a>
-        <a class="portal-home-link" href="./portal.html">Портал</a>
-        <a class="portal-home-link" href="./project.html">Платформа</a>
+      <nav class="portal-nav-cluster" aria-label="Р РѕР·РґС–Р»Рё">
+        <a class="portal-home-link" href="./landing.html">Р“РѕР»РѕРІРЅР°</a>
+        <a class="portal-home-link" href="./portal.html">РџРѕСЂС‚Р°Р»</a>
+        <a class="portal-home-link" href="./project.html">РџР»Р°С‚С„РѕСЂРјР°</a>
       </nav>
       <button type="button" class="portal-theme-toggle" id="portalThemeToggle" aria-pressed="false">
-        <span aria-hidden="true">◐</span>
-        <span id="portalThemeToggleLabel">Світла</span>
+        <span aria-hidden="true">в—ђ</span>
+        <span id="portalThemeToggleLabel">РЎРІС–С‚Р»Р°</span>
       </button>
     </header>
     <main class="app-shell">
       <header class="app-header">
         <h1>Lingvo: Language from Zero</h1>
-        <p>Тренажер спілкування з нуля</p>
+        <p>РўСЂРµРЅР°Р¶РµСЂ СЃРїС–Р»РєСѓРІР°РЅРЅСЏ Р· РЅСѓР»СЏ</p>
         <div class="trainer-top-tools">
-          <div class="trainer-owl-badge" role="img" aria-label="Сова">
-            <span class="trainer-owl-icon" aria-hidden="true">🦉</span>
+          <div class="trainer-owl-badge" role="img" aria-label="РЎРѕРІР°">
+            <span class="trainer-owl-icon" aria-hidden="true">рџ¦‰</span>
           </div>
           <label class="trainer-variant-label" for="trainerLearningLanguageSelect">
-            Мова навчання:
+            РњРѕРІР° РЅР°РІС‡Р°РЅРЅСЏ:
             <select id="trainerLearningLanguageSelect" class="trainer-variant-select" data-learning-language-select></select>
           </label>
           <label class="trainer-variant-label" for="trainerVariantSelect">
-            Стиль тренажера:
+            РЎС‚РёР»СЊ С‚СЂРµРЅР°Р¶РµСЂР°:
             <select id="trainerVariantSelect" class="trainer-variant-select">
               <option value="neon-mentor">Neon Mentor</option>
               <option value="command-center">Command Center Owl</option>
@@ -43,20 +43,20 @@
             </select>
           </label>
         </div>
-        <div class="trainer-topic-tools" aria-label="Режим оформлення уроку">
+        <div class="trainer-topic-tools" aria-label="Р РµР¶РёРј РѕС„РѕСЂРјР»РµРЅРЅСЏ СѓСЂРѕРєСѓ">
           <label class="topic-visual-label" for="topicFormatSelect">
-            Вигляд за темою:
+            Р’РёРіР»СЏРґ Р·Р° С‚РµРјРѕСЋ:
             <select id="topicFormatSelect" class="trainer-variant-select">
-              <option value="auto">Авто</option>
-              <option value="vocab">Словник / числа</option>
-              <option value="commands">Команди / процедури</option>
-              <option value="dialogue">Діалог / фрази</option>
+              <option value="auto">РђРІС‚Рѕ</option>
+              <option value="vocab">РЎР»РѕРІРЅРёРє / С‡РёСЃР»Р°</option>
+              <option value="commands">РљРѕРјР°РЅРґРё / РїСЂРѕС†РµРґСѓСЂРё</option>
+              <option value="dialogue">Р”С–Р°Р»РѕРі / С„СЂР°Р·Рё</option>
             </select>
           </label>
           <label class="topic-visual-label" for="topicPaletteSelect">
-            Палітра:
+            РџР°Р»С–С‚СЂР°:
             <select id="topicPaletteSelect" class="trainer-variant-select">
-              <option value="auto">Авто (до теми)</option>
+              <option value="auto">РђРІС‚Рѕ (РґРѕ С‚РµРјРё)</option>
               <option value="pastel">Pastel</option>
               <option value="vibrant">Vibrant</option>
               <option value="monochrome">Monochrome</option>
@@ -66,39 +66,39 @@
       </header>
 
       <section class="status-panel" aria-live="polite">
-        <div class="status-item">Рівень: <span id="levelLabel">A0</span></div>
-        <div class="status-item">Правильних: <span id="correctCount">0</span></div>
-        <div class="status-item">Спроб: <span id="attemptCount">0</span></div>
+        <div class="status-item">Р С–РІРµРЅСЊ: <span id="levelLabel">A0</span></div>
+        <div class="status-item">РџСЂР°РІРёР»СЊРЅРёС…: <span id="correctCount">0</span></div>
+        <div class="status-item">РЎРїСЂРѕР±: <span id="attemptCount">0</span></div>
       </section>
 
       <div class="trainer-main-stage trainer-main-stage--no-rail">
-        <aside id="trainerSceneMount" class="trainer-scene-mount trainer-scene-rail" aria-label="Сцени до діалогів"></aside>
+        <aside id="trainerSceneMount" class="trainer-scene-mount trainer-scene-rail" aria-label="РЎС†РµРЅРё РґРѕ РґС–Р°Р»РѕРіС–РІ"></aside>
         <div class="trainer-chat-wrap">
-          <section id="chatContainer" class="chat-container" aria-label="Чат з ботом"></section>
+          <section id="chatContainer" class="chat-container" aria-label="Р§Р°С‚ Р· Р±РѕС‚РѕРј"></section>
         </div>
       </div>
 
       <section class="controls">
         <div class="lesson-picker-row">
-          <label class="input-label" for="lessonSelect">Обери урок для старту</label>
+          <label class="input-label" for="lessonSelect">РћР±РµСЂРё СѓСЂРѕРє РґР»СЏ СЃС‚Р°СЂС‚Сѓ</label>
           <div class="lesson-picker-controls">
-            <select id="lessonSelect" aria-label="Вибір уроку"></select>
-            <button id="startLessonButton" type="button">Почати з цього уроку</button>
+            <select id="lessonSelect" aria-label="Р’РёР±С–СЂ СѓСЂРѕРєСѓ"></select>
+            <button id="startLessonButton" type="button">РџРѕС‡Р°С‚Рё Р· С†СЊРѕРіРѕ СѓСЂРѕРєСѓ</button>
           </div>
         </div>
-        <div id="taskPrompt" class="task-prompt" aria-live="polite">Завантаження завдання...</div>
-        <label class="input-label" for="userInput">Твоя відповідь</label>
+        <div id="taskPrompt" class="task-prompt" aria-live="polite">Р—Р°РІР°РЅС‚Р°Р¶РµРЅРЅСЏ Р·Р°РІРґР°РЅРЅСЏ...</div>
+        <label class="input-label" for="userInput">РўРІРѕСЏ РІС–РґРїРѕРІС–РґСЊ</label>
         <div class="input-row">
-          <input id="userInput" type="text" placeholder="Напиши мовою уроку або українською..." autocomplete="off" />
-          <button id="sendButton" type="button">Надіслати</button>
+          <input id="userInput" type="text" placeholder="РќР°РїРёС€Рё РјРѕРІРѕСЋ СѓСЂРѕРєСѓ Р°Р±Рѕ СѓРєСЂР°С—РЅСЃСЊРєРѕСЋ..." autocomplete="off" />
+          <button id="sendButton" type="button">РќР°РґС–СЃР»Р°С‚Рё</button>
         </div>
         <div class="secondary-actions">
-          <button id="dictionaryButton" type="button">Показати словник теми</button>
-          <button id="dictionaryMoreButton" type="button">Показати ще</button>
-          <button id="translationToggleButton" type="button">Ховати підказки перекладу</button>
-          <button id="lessonButton" type="button">Пояснення уроку ще раз</button>
-          <button id="speakButton" type="button">Озвучити останню фразу</button>
-          <button id="resetButton" type="button">Скинути прогрес</button>
+          <button id="dictionaryButton" type="button">РџРѕРєР°Р·Р°С‚Рё СЃР»РѕРІРЅРёРє С‚РµРјРё</button>
+          <button id="dictionaryMoreButton" type="button">РџРѕРєР°Р·Р°С‚Рё С‰Рµ</button>
+          <button id="translationToggleButton" type="button">РҐРѕРІР°С‚Рё РїС–РґРєР°Р·РєРё РїРµСЂРµРєР»Р°РґСѓ</button>
+          <button id="lessonButton" type="button">РџРѕСЏСЃРЅРµРЅРЅСЏ СѓСЂРѕРєСѓ С‰Рµ СЂР°Р·</button>
+          <button id="speakButton" type="button">РћР·РІСѓС‡РёС‚Рё РѕСЃС‚Р°РЅРЅСЋ С„СЂР°Р·Сѓ</button>
+          <button id="resetButton" type="button">РЎРєРёРЅСѓС‚Рё РїСЂРѕРіСЂРµСЃ</button>
         </div>
       </section>
     </main>
@@ -107,166 +107,7 @@
     <script src="./learning-language.js"></script>
     <script src="./topicLessonVisuals.js"></script>
     <script src="./lessonScenes.js"></script>
+    <script src="./trainer-page.js"></script>
     <script type="module" src="./js/main.js"></script>
-    <script>
-      (function () {
-        const STORAGE_KEY = "lingvo_trainer_variant";
-        const selectElement = document.getElementById("trainerVariantSelect");
-        if (!selectElement) {
-          return;
-        }
-
-        const variants = new Set(["neon-mentor", "command-center", "ai-classroom", "cyber-lab", "hybrid-owl"]);
-        function applyVariant(variantName) {
-          for (const name of variants) {
-            document.body.classList.remove(`trainer-variant-${name}`);
-          }
-          const safe = variants.has(variantName) ? variantName : "hybrid-owl";
-          document.body.classList.add(`trainer-variant-${safe}`);
-          window.localStorage.setItem(STORAGE_KEY, safe);
-          selectElement.value = safe;
-        }
-
-        const savedVariant = window.localStorage.getItem(STORAGE_KEY) || "hybrid-owl";
-        applyVariant(savedVariant);
-        selectElement.addEventListener("change", function () {
-          applyVariant(selectElement.value);
-        });
-      })();
-    </script>
-    <script>
-      (function () {
-        const sceneMount = document.getElementById("trainerSceneMount");
-        const mainStage = document.querySelector(".trainer-main-stage");
-        const lessonSelect = document.getElementById("lessonSelect");
-        const learningLanguageSelect = document.getElementById("trainerLearningLanguageSelect");
-        const startLessonButton = document.getElementById("startLessonButton");
-        if (!sceneMount || !lessonSelect) {
-          return;
-        }
-
-        const sceneByLessonKey = Object.freeze({
-          lesson1: window.LingvoLessonScenes?.getByLessonCode("a0-basics-01") || [],
-          lesson2: window.LingvoLessonScenes?.getByLessonCode("a0-basics-02") || [],
-        });
-
-        function resolveLessonKey() {
-          const selectedOption = lessonSelect.options[lessonSelect.selectedIndex];
-          const label = String(selectedOption?.textContent || "").toLowerCase();
-          const value = String(lessonSelect.value || "").toLowerCase();
-          if (label.includes("урок 1") || label.includes("lesson 1") || label.includes("basics")) {
-            return "lesson1";
-          }
-          if (label.includes("basi 01") || value.includes("it-a0-basics-01")) {
-            return "lesson1";
-          }
-          if (label.includes("урок 2") || label.includes("lesson 2")) {
-            return "lesson2";
-          }
-          if (label.includes("lezione 02") || value.includes("it-a0-basics-02")) {
-            return "lesson2";
-          }
-          if (value.includes("a0-basics-01")) {
-            return "lesson1";
-          }
-          if (value.includes("a0-basics-02")) {
-            return "lesson2";
-          }
-          return "";
-        }
-
-        function renderScenes() {
-          const lessonKey = resolveLessonKey();
-          const scenes = sceneByLessonKey[lessonKey] || [];
-          sceneMount.innerHTML = "";
-          if (!scenes.length) {
-            sceneMount.hidden = true;
-            if (mainStage) {
-              mainStage.classList.add("trainer-main-stage--no-rail");
-            }
-            return;
-          }
-          if (mainStage) {
-            mainStage.classList.remove("trainer-main-stage--no-rail");
-          }
-
-          const heading = document.createElement("h3");
-          heading.className = "trainer-scene-heading";
-          heading.textContent = "Сцени до діалогів (MVP)";
-          const nav = document.createElement("div");
-          nav.className = "trainer-scene-nav";
-          const prevButton = document.createElement("button");
-          prevButton.type = "button";
-          prevButton.className = "trainer-scene-nav-btn";
-          prevButton.textContent = "↑";
-          prevButton.setAttribute("aria-label", "Прокрутити сцени вгору");
-          const nextButton = document.createElement("button");
-          nextButton.type = "button";
-          nextButton.className = "trainer-scene-nav-btn";
-          nextButton.textContent = "↓";
-          nextButton.setAttribute("aria-label", "Прокрутити сцени вниз");
-          nav.appendChild(prevButton);
-          nav.appendChild(nextButton);
-          const headingRow = document.createElement("div");
-          headingRow.className = "trainer-scene-heading-row";
-          headingRow.appendChild(heading);
-          headingRow.appendChild(nav);
-          sceneMount.appendChild(headingRow);
-
-          const grid = document.createElement("div");
-          grid.className = "trainer-scene-grid";
-          for (const scene of scenes) {
-            const card = document.createElement("article");
-            card.className = "trainer-scene-card";
-            const openButton = document.createElement("button");
-            openButton.type = "button";
-            openButton.className = "trainer-scene-open";
-            openButton.setAttribute("aria-label", `Відкрити сцену: ${scene.alt}`);
-            const image = document.createElement("img");
-            image.className = "trainer-scene-image";
-            image.src = scene.src || scene.svgPath || "";
-            image.alt = scene.alt || scene.altTextUa || "";
-            image.loading = "lazy";
-            openButton.appendChild(image);
-            openButton.addEventListener("click", function () {
-              const targetSrc = scene.src || scene.svgPath || "";
-              window.open(targetSrc, "_blank", "noopener,noreferrer");
-            });
-            const caption = document.createElement("div");
-            caption.className = "trainer-scene-caption";
-            const enLine = document.createElement("p");
-            enLine.className = "trainer-scene-en";
-            enLine.textContent = String(scene.en || "");
-            const uaLine = document.createElement("p");
-            uaLine.className = "trainer-scene-ua";
-            uaLine.textContent = String(scene.ua || scene.altTextUa || "");
-            card.appendChild(openButton);
-            caption.appendChild(enLine);
-            caption.appendChild(uaLine);
-            card.appendChild(caption);
-            grid.appendChild(card);
-          }
-          sceneMount.appendChild(grid);
-          prevButton.addEventListener("click", function () {
-            grid.scrollBy({ top: -Math.max(160, grid.clientHeight * 0.85), behavior: "smooth" });
-          });
-          nextButton.addEventListener("click", function () {
-            grid.scrollBy({ top: Math.max(160, grid.clientHeight * 0.85), behavior: "smooth" });
-          });
-          sceneMount.hidden = false;
-        }
-
-        lessonSelect.addEventListener("change", renderScenes);
-        learningLanguageSelect?.addEventListener("change", function () {
-          window.location.reload();
-        });
-        startLessonButton?.addEventListener("click", function () {
-          window.setTimeout(renderScenes, 30);
-        });
-
-        new MutationObserver(renderScenes).observe(lessonSelect, { childList: true, subtree: true });
-        window.setTimeout(renderScenes, 150);
-      })();
-    </script>
   </body>
 </html>
