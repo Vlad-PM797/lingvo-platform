@@ -11,6 +11,10 @@ export const lessonIdParamsSchema = z.object({
   lessonId: UUID_SCHEMA,
 });
 
+export const lessonContentQuerySchema = z.object({
+  targetLang: z.enum(["en", "it"]).optional().default("en"),
+});
+
 export const submitAttemptSchema = z.object({
   lessonId: UUID_SCHEMA,
   promptType: z.string().trim().min(LEARNING_CONSTANTS.minAnswerLength).max(LEARNING_CONSTANTS.promptTypeMaxLength),

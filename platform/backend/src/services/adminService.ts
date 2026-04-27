@@ -60,14 +60,15 @@ export class AdminService {
     await adminRepository.deactivateLesson(adminUserId, lessonId);
   }
 
-  async createWord(adminUserId: string, input: { lessonId: string; enText: string; uaText: string; ordinal: number }) {
+  async createWord(adminUserId: string, input: { lessonId: string; enText: string; uaText: string; itText?: string; ordinal: number }) {
     return adminRepository.createWord(adminUserId, input);
   }
 
-  async updateWord(adminUserId: string, wordId: string, input: { enText?: string; uaText?: string; ordinal?: number }) {
+  async updateWord(adminUserId: string, wordId: string, input: { enText?: string; uaText?: string; itText?: string; ordinal?: number }) {
     return adminRepository.updateWord(adminUserId, wordId, {
       en_text: input.enText,
       ua_text: input.uaText,
+      it_text: input.itText,
       ordinal: input.ordinal,
     });
   }
@@ -76,18 +77,19 @@ export class AdminService {
     await adminRepository.deleteWord(adminUserId, wordId);
   }
 
-  async createPhrase(adminUserId: string, input: { lessonId: string; enText: string; uaText: string; ordinal: number }) {
+  async createPhrase(adminUserId: string, input: { lessonId: string; enText: string; uaText: string; itText?: string; ordinal: number }) {
     return adminRepository.createPhrase(adminUserId, input);
   }
 
   async updatePhrase(
     adminUserId: string,
     phraseId: string,
-    input: { enText?: string; uaText?: string; ordinal?: number },
+    input: { enText?: string; uaText?: string; itText?: string; ordinal?: number },
   ) {
     return adminRepository.updatePhrase(adminUserId, phraseId, {
       en_text: input.enText,
       ua_text: input.uaText,
+      it_text: input.itText,
       ordinal: input.ordinal,
     });
   }

@@ -1,5 +1,6 @@
 const PROJECT_ELEMENTS = {
   baseUrl: document.getElementById("baseUrl"),
+  targetLangSelect: document.getElementById("targetLangSelect"),
   loadCoursesButton: document.getElementById("loadCoursesButton"),
   loadProgressButton: document.getElementById("loadProgressButton"),
   logoutButton: document.getElementById("logoutButton"),
@@ -11,6 +12,7 @@ const PROJECT_ELEMENTS = {
   answerInput: document.getElementById("answerInput"),
   submitAttemptButton: document.getElementById("submitAttemptButton"),
   attemptOutput: document.getElementById("attemptOutput"),
+  loadTesterActivityTodayButton: document.getElementById("loadTesterActivityTodayButton"),
   loadTesterActivityButton: document.getElementById("loadTesterActivityButton"),
   testerActivityOutput: document.getElementById("testerActivityOutput"),
 };
@@ -19,12 +21,18 @@ const STORAGE_KEYS = Object.freeze({
   backendUrl: "lingvo_backend_url",
   accessToken: "lingvo_access_token",
   refreshToken: "lingvo_refresh_token",
+  targetLang: "lingvo_target_lang",
 });
 
 const PROJECT_MESSAGES = Object.freeze({
   loginRequired: "Сесія відсутня. Увійди ще раз.",
   lessonMissing: "Спочатку обери урок.",
   answerMissing: "Введи відповідь перед відправкою.",
+});
+
+const TARGET_LANG = Object.freeze({
+  english: "en",
+  italian: "it",
 });
 
 const projectState = {
@@ -69,6 +77,11 @@ function getAccessTokenOrThrow() {
     throw new Error(PROJECT_MESSAGES.loginRequired);
   }
   return token;
+}
+
+function getTargetLang() {
+  const raw = String(PROJECT_ELEMENTS.targetLangSelect?.value || "").trim().toLowerCase();
+  return raw === TARGET_LANG.italian ? TARGET_LANG.italian : TARGET_LANG.english;
 }
 
 async function requestAuthJson(path, method = "GET", payload = null) {
@@ -296,9 +309,10 @@ async function openLesson() {
   }
 
   try {
+    const targetLang = getTargetLang();
     logInfo("project.lesson.open.attempt", { lessonId });
     clearLessonSceneMount();
-    const lesson = await requestAuthJson(`/learning/lessons/${lessonId}`);
+    const lesson = await requestAuthJson(`/learning/lessons/${lessonId}?targetLang=${encodeURIComponent(targetLang)}`);
     projectState.selectedLesson = lesson;
 
     const words = Array.isArray(lesson.words) ? lesson.words : [];
@@ -309,6 +323,7 @@ async function openLesson() {
 
     PROJECT_ELEMENTS.lessonOutput.textContent = [
       `Урок: ${lesson.title}`,
+      `Мова вивчення: ${targetLang === TARGET_LANG.italian ? "Італійська" : "Англійська"}`,
       ``,
       `Опис:`,
       `${lesson.description || "(немає)"}`,
@@ -415,10 +430,11 @@ function formatDuration(totalSeconds) {
   return `${hours}г ${minutes}хв ${seconds}с`;
 }
 
-async function loadTesterActivity() {
+async function loadTesterActivity(hours = 168) {
   try {
-    logInfo("project.testers_activity.load.attempt");
-    const payload = await requestAuthJson("/admin/testers/activity?hours=168&limit=150");
+    const safeHours = Number.isInteger(hours) && hours > 0 ? hours : 168;
+    logInfo("project.testers_activity.load.attempt", { hours: safeHours });
+    const payload = await requestAuthJson(`/admin/testers/activity?hours=${safeHours}&limit=150`);
     const rows = Array.isArray(payload.rows) ? payload.rows : [];
     if (rows.length === 0) {
       PROJECT_ELEMENTS.testerActivityOutput.textContent = "За обраний період активність не знайдена.";
@@ -438,12 +454,12 @@ async function loadTesterActivity() {
       ].join("\n");
     });
     PROJECT_ELEMENTS.testerActivityOutput.textContent = [
-      `Період звіту: останні ${payload.hours || 168} год`,
+      `Період звіту: останні ${payload.hours || safeHours} год`,
       `Рядків: ${rows.length}`,
       "",
       ...lines,
     ].join("\n");
-    logInfo("project.testers_activity.load.success", { count: rows.length });
+    logInfo("project.testers_activity.load.success", { count: rows.length, hours: safeHours });
   } catch (error) {
     logError("project.testers_activity.load.failed", error);
     const message = error instanceof Error ? error.message : String(error);
@@ -473,6 +489,12 @@ function bootstrap() {
     }
   }
 
+  const savedTargetLang = String(window.localStorage.getItem(STORAGE_KEYS.targetLang) || "").trim().toLowerCase();
+  if (PROJECT_ELEMENTS.targetLangSelect) {
+    PROJECT_ELEMENTS.targetLangSelect.value =
+      savedTargetLang === TARGET_LANG.italian ? TARGET_LANG.italian : TARGET_LANG.english;
+  }
+
   const accessToken = window.localStorage.getItem(STORAGE_KEYS.accessToken);
   if (!accessToken) {
     window.location.href = "./remote-test.html";
@@ -484,6 +506,13 @@ function bootstrap() {
     PROJECT_ELEMENTS.baseUrl.value = normalized;
     if (normalized) {
       window.localStorage.setItem(STORAGE_KEYS.backendUrl, normalized);
+    }
+  });
+  PROJECT_ELEMENTS.targetLangSelect?.addEventListener("change", () => {
+    const value = getTargetLang();
+    window.localStorage.setItem(STORAGE_KEYS.targetLang, value);
+    if (projectState.selectedLesson?.id) {
+      void openLesson();
     }
   });
 
@@ -504,7 +533,10 @@ function bootstrap() {
     void submitAttempt();
   });
   PROJECT_ELEMENTS.loadTesterActivityButton.addEventListener("click", () => {
-    void loadTesterActivity();
+    void loadTesterActivity(168);
+  });
+  PROJECT_ELEMENTS.loadTesterActivityTodayButton.addEventListener("click", () => {
+    void loadTesterActivity(24);
   });
 
   void loadCourses();

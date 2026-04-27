@@ -25,6 +25,11 @@
       <p class="hint">Тут ти можеш проходити уроки, відправляти відповіді і зберігати прогрес.</p>
       <label class="label" for="baseUrl">Backend URL</label>
       <input id="baseUrl" type="url" placeholder="https://your-backend-domain.com" />
+      <label class="label" for="targetLangSelect">Мова вивчення (база: українська)</label>
+      <select id="targetLangSelect">
+        <option value="en">Англійська</option>
+        <option value="it">Італійська</option>
+      </select>
       <div class="actions-row">
         <button id="loadCoursesButton">Завантажити курси</button>
         <button id="loadProgressButton">Мій прогрес</button>
@@ -86,6 +91,7 @@
       <h2>Моніторинг тестувальників (admin)</h2>
       <p class="hint">Показує хто тестує, з якого IP/origin і скільки часу активний за обраний період.</p>
       <div class="actions-row">
+        <button id="loadTesterActivityTodayButton">Сьогодні</button>
         <button id="loadTesterActivityButton">Завантажити активність (7 днів)</button>
       </div>
       <pre id="testerActivityOutput">Доступно тільки для admin-користувача.</pre>

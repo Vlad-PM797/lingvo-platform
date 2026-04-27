@@ -27,6 +27,7 @@ interface WordRecord {
   lesson_id: string;
   en_text: string;
   ua_text: string;
+  it_text: string | null;
   ordinal: number;
 }
 
@@ -35,6 +36,7 @@ interface PhraseRecord {
   lesson_id: string;
   en_text: string;
   ua_text: string;
+  it_text: string | null;
   ordinal: number;
 }
 
@@ -214,7 +216,7 @@ export class AdminRepository {
 
   async createWord(
     adminUserId: string,
-    input: { lessonId: string; enText: string; uaText: string; ordinal: number },
+    input: { lessonId: string; enText: string; uaText: string; itText?: string; ordinal: number },
   ): Promise<WordRecord> {
     let databaseClient: PoolClient | null = null;
     try {
@@ -223,11 +225,11 @@ export class AdminRepository {
       await databaseClient.query("BEGIN");
       const createdResult = await databaseClient.query<WordRecord>(
         `
-          INSERT INTO lesson_words (lesson_id, en_text, ua_text, ordinal)
-          VALUES ($1, $2, $3, $4)
-          RETURNING id, lesson_id, en_text, ua_text, ordinal
+          INSERT INTO lesson_words (lesson_id, en_text, ua_text, it_text, ordinal)
+          VALUES ($1, $2, $3, $4, $5)
+          RETURNING id, lesson_id, en_text, ua_text, it_text, ordinal
         `,
-        [input.lessonId, input.enText, input.uaText, input.ordinal],
+        [input.lessonId, input.enText, input.uaText, input.itText ?? null, input.ordinal],
       );
       const created = createdResult.rows[0];
       await logAudit(databaseClient, adminUserId, "word", created.id, "create", input);
@@ -303,7 +305,7 @@ export class AdminRepository {
 
   async createPhrase(
     adminUserId: string,
-    input: { lessonId: string; enText: string; uaText: string; ordinal: number },
+    input: { lessonId: string; enText: string; uaText: string; itText?: string; ordinal: number },
   ): Promise<PhraseRecord> {
     let databaseClient: PoolClient | null = null;
     try {
@@ -312,11 +314,11 @@ export class AdminRepository {
       await databaseClient.query("BEGIN");
       const createdResult = await databaseClient.query<PhraseRecord>(
         `
-          INSERT INTO lesson_phrases (lesson_id, en_text, ua_text, ordinal)
-          VALUES ($1, $2, $3, $4)
-          RETURNING id, lesson_id, en_text, ua_text, ordinal
+          INSERT INTO lesson_phrases (lesson_id, en_text, ua_text, it_text, ordinal)
+          VALUES ($1, $2, $3, $4, $5)
+          RETURNING id, lesson_id, en_text, ua_text, it_text, ordinal
         `,
-        [input.lessonId, input.enText, input.uaText, input.ordinal],
+        [input.lessonId, input.enText, input.uaText, input.itText ?? null, input.ordinal],
       );
       const created = createdResult.rows[0];
       await logAudit(databaseClient, adminUserId, "phrase", created.id, "create", input);

@@ -52,3 +52,29 @@
 - [x] Backend builds without errors
 - [ ] Endpoint returns expected data shape
 - [ ] Frontend viewer renders and refreshes
+
+# Task: UA Base + EN/IT Target Learning Mode
+
+## Implementation Details
+- Keep Ukrainian as source language for prompts (`ua_text` unchanged as baseline).
+- Add optional Italian target text storage to DB (`it_text`) for words/phrases.
+- Add `targetLang` query support (`en` default, `it` optional) on lesson content endpoint.
+- Keep backward compatibility: if Italian text is missing, fallback to English target text.
+- Add frontend selector in `project.html` to choose learning target (EN/IT).
+
+## Subtasks
+- [x] Add migration for `it_text` columns in lesson words/phrases
+- [x] Extend backend repository/service/controller/schemas for `targetLang`
+- [x] Extend admin create/update schemas/services/repositories with optional `itText`
+- [x] Add frontend language selector and persist choice in localStorage
+- [x] Validate typecheck/build and API compatibility
+
+## Testing Plan
+- [x] Run backend typecheck/build
+- [ ] Verify `GET /learning/lessons/:id?targetLang=en` returns EN target
+- [ ] Verify `GET /learning/lessons/:id?targetLang=it` returns IT target or EN fallback
+- [x] Verify project UI changes target language without breaking attempts/progress
+
+## Verification
+- [x] Existing EN flow works unchanged
+- [x] IT mode is selectable and functional

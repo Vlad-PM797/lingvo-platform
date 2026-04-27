@@ -40,12 +40,14 @@ export const createWordSchema = z.object({
   lessonId: UUID_SCHEMA,
   enText: z.string().trim().min(1).max(ADMIN_CONSTANTS.textMaxLength),
   uaText: z.string().trim().min(1).max(ADMIN_CONSTANTS.textMaxLength),
+  itText: z.string().trim().max(ADMIN_CONSTANTS.textMaxLength).optional(),
   ordinal: z.number().int().min(ADMIN_CONSTANTS.minOrdinal),
 });
 
 export const updateWordSchema = z.object({
   enText: z.string().trim().min(1).max(ADMIN_CONSTANTS.textMaxLength).optional(),
   uaText: z.string().trim().min(1).max(ADMIN_CONSTANTS.textMaxLength).optional(),
+  itText: z.string().trim().max(ADMIN_CONSTANTS.textMaxLength).optional(),
   ordinal: z.number().int().min(ADMIN_CONSTANTS.minOrdinal).optional(),
 });
 
@@ -53,12 +55,14 @@ export const createPhraseSchema = z.object({
   lessonId: UUID_SCHEMA,
   enText: z.string().trim().min(1).max(ADMIN_CONSTANTS.textMaxLength),
   uaText: z.string().trim().min(1).max(ADMIN_CONSTANTS.textMaxLength),
+  itText: z.string().trim().max(ADMIN_CONSTANTS.textMaxLength).optional(),
   ordinal: z.number().int().min(ADMIN_CONSTANTS.minOrdinal),
 });
 
 export const updatePhraseSchema = z.object({
   enText: z.string().trim().min(1).max(ADMIN_CONSTANTS.textMaxLength).optional(),
   uaText: z.string().trim().min(1).max(ADMIN_CONSTANTS.textMaxLength).optional(),
+  itText: z.string().trim().max(ADMIN_CONSTANTS.textMaxLength).optional(),
   ordinal: z.number().int().min(ADMIN_CONSTANTS.minOrdinal).optional(),
 });
 

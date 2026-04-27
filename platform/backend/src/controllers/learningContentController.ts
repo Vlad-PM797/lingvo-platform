@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { learningContentService } from "../services/learningContentService";
-import { courseIdParamsSchema, lessonIdParamsSchema } from "../schemas/learningSchemas";
+import { courseIdParamsSchema, lessonContentQuerySchema, lessonIdParamsSchema } from "../schemas/learningSchemas";
 import { logger } from "../utils/logger";
 
 export class LearningContentController {
@@ -19,8 +19,9 @@ export class LearningContentController {
 
   async getLessonById(request: Request, response: Response): Promise<void> {
     const params = lessonIdParamsSchema.parse(request.params);
-    logger.info("learning.content.get_lesson_by_id.attempt", { lessonId: params.lessonId });
-    const lesson = await learningContentService.getLessonById(params.lessonId);
+    const query = lessonContentQuerySchema.parse(request.query);
+    logger.info("learning.content.get_lesson_by_id.attempt", { lessonId: params.lessonId, targetLang: query.targetLang });
+    const lesson = await learningContentService.getLessonById(params.lessonId, query.targetLang);
     response.status(200).json(lesson);
   }
 }
