@@ -1,5 +1,6 @@
 import { APP_CONFIG, UI_TEXT } from "./config.js";
 import { LESSON_MATERIALS, LESSON_STEPS, PROJECT_INTROS } from "./content.js";
+import { collectExpectedAnswers, ensureIntroState } from "./intro-helpers.js";
 import {
   applyHintsVisibilityClass,
   buildPhraseListMessage,
@@ -11,9 +12,6 @@ import {
   renderTextWithGlossary,
 } from "./ui-helpers.js";
 
-const SHORT_WORD_TEST_COUNT = 10;
-const SHORT_PHRASE_TEST_COUNT = 8;
-const INTRO_CONTENT_VERSION = 4;
 const DICTIONARY_WORD_PAGE_SIZE = 20;
 const DICTIONARY_PHRASE_PAGE_SIZE = 10;
 
@@ -368,46 +366,7 @@ export class TutorController {
         return true;
       }
 
-      if (!this.progressState.introProgress) {
-        this.progressState.introProgress = {};
-      }
-
-      if (!this.progressState.introProgress[projectName]) {
-        const wordsSampleIndices = this.buildSampleIndices(projectIntro.words.length, SHORT_WORD_TEST_COUNT);
-        const phrasesSampleIndices = this.buildSampleIndices(projectIntro.phrases.length, SHORT_PHRASE_TEST_COUNT);
-        this.progressState.introProgress[projectName] = {
-          contentVersion: INTRO_CONTENT_VERSION,
-          wordsShown: false,
-          wordsTestIndex: 0,
-          wordsDirection: "ua_to_en",
-          wordsSampleIndices,
-          phrasesShown: false,
-          phrasesTestIndex: 0,
-          phrasesDirection: "ua_to_en",
-          phrasesSampleIndices,
-          completed: false,
-        };
-      }
-
-      const introState = this.progressState.introProgress[projectName];
-      if (introState.contentVersion !== INTRO_CONTENT_VERSION) {
-        introState.contentVersion = INTRO_CONTENT_VERSION;
-        introState.wordsShown = false;
-        introState.wordsTestIndex = 0;
-        introState.wordsDirection = "ua_to_en";
-        introState.wordsSampleIndices = this.buildSampleIndices(projectIntro.words.length, SHORT_WORD_TEST_COUNT);
-        introState.phrasesShown = false;
-        introState.phrasesTestIndex = 0;
-        introState.phrasesDirection = "ua_to_en";
-        introState.phrasesSampleIndices = this.buildSampleIndices(projectIntro.phrases.length, SHORT_PHRASE_TEST_COUNT);
-        introState.completed = false;
-      }
-      if (!Array.isArray(introState.wordsSampleIndices) || introState.wordsSampleIndices.length === 0) {
-        introState.wordsSampleIndices = this.buildSampleIndices(projectIntro.words.length, SHORT_WORD_TEST_COUNT);
-      }
-      if (!Array.isArray(introState.phrasesSampleIndices) || introState.phrasesSampleIndices.length === 0) {
-        introState.phrasesSampleIndices = this.buildSampleIndices(projectIntro.phrases.length, SHORT_PHRASE_TEST_COUNT);
-      }
+      const introState = ensureIntroState(this.progressState, projectName, projectIntro);
       if (introState.completed) {
         this.pendingIntroQuestion = null;
         return true;
@@ -539,39 +498,14 @@ export class TutorController {
     }
   }
 
-  buildSampleIndices(totalCount, sampleCount) {
-    const targetCount = Math.min(totalCount, sampleCount);
-    const indices = Array.from({ length: totalCount }, (_, index) => index);
-    for (let index = indices.length - 1; index > 0; index -= 1) {
-      const randomIndex = Math.floor(Math.random() * (index + 1));
-      const tempValue = indices[index];
-      indices[index] = indices[randomIndex];
-      indices[randomIndex] = tempValue;
-    }
-    return indices.slice(0, targetCount);
-  }
-
   collectExpectedAnswers(list, getMatchValue, matchFieldValue, getResultValue) {
-    const normalizedMatchFieldValue = this.inputValidator.normalizeAnswer(matchFieldValue);
-    const answers = [];
-    const answerSet = new Set();
-    for (const item of list) {
-      const normalizedItemMatchValue = this.inputValidator.normalizeAnswer(getMatchValue(item));
-      if (normalizedItemMatchValue !== normalizedMatchFieldValue) {
-        continue;
-      }
-      const normalizedAnswerValue = this.inputValidator.normalizeAnswer(getResultValue(item));
-      if (answerSet.has(normalizedAnswerValue)) {
-        continue;
-      }
-      answerSet.add(normalizedAnswerValue);
-      answers.push(normalizedAnswerValue);
-    }
-
-    if (answers.length === 0) {
-      answers.push(this.inputValidator.normalizeAnswer(matchFieldValue));
-    }
-    return answers;
+    return collectExpectedAnswers(
+      list,
+      getMatchValue,
+      matchFieldValue,
+      getResultValue,
+      (value) => this.inputValidator.normalizeAnswer(value),
+    );
   }
 
   handleIntroAnswer(userText) {
