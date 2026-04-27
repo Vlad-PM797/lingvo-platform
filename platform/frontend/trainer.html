@@ -28,6 +28,13 @@
           <div class="trainer-owl-badge" role="img" aria-label="Сова">
             <span class="trainer-owl-icon" aria-hidden="true">🦉</span>
           </div>
+          <label class="trainer-variant-label" for="trainerTargetLangSelect">
+            Мова вивчення:
+            <select id="trainerTargetLangSelect" class="trainer-variant-select">
+              <option value="en">Англійська</option>
+              <option value="it">Італійська</option>
+            </select>
+          </label>
           <label class="trainer-variant-label" for="trainerVariantSelect">
             Стиль тренажера:
             <select id="trainerVariantSelect" class="trainer-variant-select">
@@ -66,6 +73,11 @@
         <div class="status-item">Правильних: <span id="correctCount">0</span></div>
         <div class="status-item">Спроб: <span id="attemptCount">0</span></div>
       </section>
+      <section id="trainerLangNotice" class="trainer-lang-notice" hidden>
+        <strong>Режим Італійська:</strong> у тренажері поки що активний EN-контент.
+        Для повноцінного IT-режиму відкрий
+        <a class="portal-home-link" href="./project.html">Платформу</a>.
+      </section>
 
       <div class="trainer-main-stage trainer-main-stage--no-rail">
         <aside id="trainerSceneMount" class="trainer-scene-mount trainer-scene-rail" aria-label="Сцени до діалогів"></aside>
@@ -103,6 +115,27 @@
     <script src="./topicLessonVisuals.js"></script>
     <script src="./js/app.bundle.js"></script>
     <script src="./lessonScenes.js"></script>
+    <script>
+      (function () {
+        const STORAGE_KEY = "lingvo_target_lang";
+        const selector = document.getElementById("trainerTargetLangSelect");
+        const notice = document.getElementById("trainerLangNotice");
+        if (!selector) {
+          return;
+        }
+        function applyTargetLanguage() {
+          const selected = String(selector.value || "en").toLowerCase() === "it" ? "it" : "en";
+          window.localStorage.setItem(STORAGE_KEY, selected);
+          if (notice) {
+            notice.hidden = selected !== "it";
+          }
+        }
+        const saved = String(window.localStorage.getItem(STORAGE_KEY) || "en").trim().toLowerCase();
+        selector.value = saved === "it" ? "it" : "en";
+        applyTargetLanguage();
+        selector.addEventListener("change", applyTargetLanguage);
+      })();
+    </script>
     <script>
       (function () {
         const STORAGE_KEY = "lingvo_trainer_variant";
