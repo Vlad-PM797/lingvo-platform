@@ -28,18 +28,9 @@
           <div class="trainer-owl-badge" role="img" aria-label="Сова">
             <span class="trainer-owl-icon" aria-hidden="true">🦉</span>
           </div>
-<<<<<<< HEAD
           <label class="trainer-variant-label" for="trainerLearningLanguageSelect">
             Мова навчання:
             <select id="trainerLearningLanguageSelect" class="trainer-variant-select" data-learning-language-select></select>
-=======
-          <label class="trainer-variant-label" for="trainerTargetLangSelect">
-            Мова вивчення:
-            <select id="trainerTargetLangSelect" class="trainer-variant-select">
-              <option value="en">Англійська</option>
-              <option value="it">Італійська</option>
-            </select>
->>>>>>> dcdd6c04796379ae97ec4794a72ccd547b201aca
           </label>
           <label class="trainer-variant-label" for="trainerVariantSelect">
             Стиль тренажера:
@@ -112,9 +103,6 @@
           <div class="input-row">
             <input id="translationPracticeInput" type="text" placeholder="Введи переклад..." autocomplete="off" />
             <button id="translationPracticeCheckButton" type="button">Перевірити</button>
-            <button id="translationPracticeRevealButton" type="button">Показати відповідь</button>
-            <button id="translationPracticeSpeakButton" type="button">Озвучити</button>
-            <button id="translationPracticeNextButton" type="button">Наступне слово</button>
           </div>
           <div id="translationPracticeResult" class="task-prompt" aria-live="polite"></div>
         </div>
@@ -133,181 +121,7 @@
     <script src="./learning-language.js"></script>
     <script src="./topicLessonVisuals.js"></script>
     <script src="./lessonScenes.js"></script>
-<<<<<<< HEAD
     <script src="./trainer-page.js"></script>
     <script type="module" src="./js/main.js"></script>
-=======
-    <script>
-      (function () {
-        const STORAGE_KEY = "lingvo_target_lang";
-        const selector = document.getElementById("trainerTargetLangSelect");
-        const notice = document.getElementById("trainerLangNotice");
-        if (!selector) {
-          return;
-        }
-        function applyTargetLanguage() {
-          const selected = String(selector.value || "en").toLowerCase() === "it" ? "it" : "en";
-          window.localStorage.setItem(STORAGE_KEY, selected);
-          if (notice) {
-            notice.hidden = selected !== "it";
-          }
-        }
-        const saved = String(window.localStorage.getItem(STORAGE_KEY) || "en").trim().toLowerCase();
-        selector.value = saved === "it" ? "it" : "en";
-        applyTargetLanguage();
-        selector.addEventListener("change", applyTargetLanguage);
-      })();
-    </script>
-    <script>
-      (function () {
-        const STORAGE_KEY = "lingvo_trainer_variant";
-        const selectElement = document.getElementById("trainerVariantSelect");
-        if (!selectElement) {
-          return;
-        }
-
-        const variants = new Set(["neon-mentor", "command-center", "ai-classroom", "cyber-lab", "hybrid-owl"]);
-        function applyVariant(variantName) {
-          for (const name of variants) {
-            document.body.classList.remove(`trainer-variant-${name}`);
-          }
-          const safe = variants.has(variantName) ? variantName : "hybrid-owl";
-          document.body.classList.add(`trainer-variant-${safe}`);
-          window.localStorage.setItem(STORAGE_KEY, safe);
-          selectElement.value = safe;
-        }
-
-        const savedVariant = window.localStorage.getItem(STORAGE_KEY) || "hybrid-owl";
-        applyVariant(savedVariant);
-        selectElement.addEventListener("change", function () {
-          applyVariant(selectElement.value);
-        });
-      })();
-    </script>
-    <script>
-      (function () {
-        const sceneMount = document.getElementById("trainerSceneMount");
-        const mainStage = document.querySelector(".trainer-main-stage");
-        const lessonSelect = document.getElementById("lessonSelect");
-        const startLessonButton = document.getElementById("startLessonButton");
-        if (!sceneMount || !lessonSelect) {
-          return;
-        }
-
-        const sceneByLessonKey = Object.freeze({
-          lesson1: window.LingvoLessonScenes?.getByLessonCode("a0-basics-01") || [],
-          lesson2: window.LingvoLessonScenes?.getByLessonCode("a0-basics-02") || [],
-        });
-
-        function resolveLessonKey() {
-          const selectedOption = lessonSelect.options[lessonSelect.selectedIndex];
-          const label = String(selectedOption?.textContent || "").toLowerCase();
-          const value = String(lessonSelect.value || "").toLowerCase();
-          if (label.includes("урок 1") || label.includes("lesson 1") || label.includes("basics")) {
-            return "lesson1";
-          }
-          if (label.includes("урок 2") || label.includes("lesson 2")) {
-            return "lesson2";
-          }
-          if (value.includes("a0-basics-01")) {
-            return "lesson1";
-          }
-          if (value.includes("a0-basics-02")) {
-            return "lesson2";
-          }
-          return "";
-        }
-
-        function renderScenes() {
-          const lessonKey = resolveLessonKey();
-          const scenes = sceneByLessonKey[lessonKey] || [];
-          sceneMount.innerHTML = "";
-          if (!scenes.length) {
-            sceneMount.hidden = true;
-            if (mainStage) {
-              mainStage.classList.add("trainer-main-stage--no-rail");
-            }
-            return;
-          }
-          if (mainStage) {
-            mainStage.classList.remove("trainer-main-stage--no-rail");
-          }
-
-          const heading = document.createElement("h3");
-          heading.className = "trainer-scene-heading";
-          heading.textContent = "Сцени до діалогів (MVP)";
-          const nav = document.createElement("div");
-          nav.className = "trainer-scene-nav";
-          const prevButton = document.createElement("button");
-          prevButton.type = "button";
-          prevButton.className = "trainer-scene-nav-btn";
-          prevButton.textContent = "↑";
-          prevButton.setAttribute("aria-label", "Прокрутити сцени вгору");
-          const nextButton = document.createElement("button");
-          nextButton.type = "button";
-          nextButton.className = "trainer-scene-nav-btn";
-          nextButton.textContent = "↓";
-          nextButton.setAttribute("aria-label", "Прокрутити сцени вниз");
-          nav.appendChild(prevButton);
-          nav.appendChild(nextButton);
-          const headingRow = document.createElement("div");
-          headingRow.className = "trainer-scene-heading-row";
-          headingRow.appendChild(heading);
-          headingRow.appendChild(nav);
-          sceneMount.appendChild(headingRow);
-
-          const grid = document.createElement("div");
-          grid.className = "trainer-scene-grid";
-          for (const scene of scenes) {
-            const card = document.createElement("article");
-            card.className = "trainer-scene-card";
-            const openButton = document.createElement("button");
-            openButton.type = "button";
-            openButton.className = "trainer-scene-open";
-            openButton.setAttribute("aria-label", `Відкрити сцену: ${scene.alt}`);
-            const image = document.createElement("img");
-            image.className = "trainer-scene-image";
-            image.src = scene.src || scene.svgPath || "";
-            image.alt = scene.alt || scene.altTextUa || "";
-            image.loading = "lazy";
-            openButton.appendChild(image);
-            openButton.addEventListener("click", function () {
-              const targetSrc = scene.src || scene.svgPath || "";
-              window.open(targetSrc, "_blank", "noopener,noreferrer");
-            });
-            const caption = document.createElement("div");
-            caption.className = "trainer-scene-caption";
-            const enLine = document.createElement("p");
-            enLine.className = "trainer-scene-en";
-            enLine.textContent = String(scene.en || "");
-            const uaLine = document.createElement("p");
-            uaLine.className = "trainer-scene-ua";
-            uaLine.textContent = String(scene.ua || scene.altTextUa || "");
-            card.appendChild(openButton);
-            caption.appendChild(enLine);
-            caption.appendChild(uaLine);
-            card.appendChild(caption);
-            grid.appendChild(card);
-          }
-          sceneMount.appendChild(grid);
-          prevButton.addEventListener("click", function () {
-            grid.scrollBy({ top: -Math.max(160, grid.clientHeight * 0.85), behavior: "smooth" });
-          });
-          nextButton.addEventListener("click", function () {
-            grid.scrollBy({ top: Math.max(160, grid.clientHeight * 0.85), behavior: "smooth" });
-          });
-          sceneMount.hidden = false;
-        }
-
-        lessonSelect.addEventListener("change", renderScenes);
-        startLessonButton?.addEventListener("click", function () {
-          window.setTimeout(renderScenes, 30);
-        });
-
-        new MutationObserver(renderScenes).observe(lessonSelect, { childList: true, subtree: true });
-        window.setTimeout(renderScenes, 150);
-      })();
-    </script>
->>>>>>> dcdd6c04796379ae97ec4794a72ccd547b201aca
   </body>
 </html>
