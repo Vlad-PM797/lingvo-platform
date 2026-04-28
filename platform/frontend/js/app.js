@@ -28,6 +28,7 @@ export class TutorController {
     this.translationHintsEnabled = this.progressState.translationHintsEnabled !== false;
     this.pendingIntroQuestion = null;
     this.dictionaryViewState = {};
+    this.translationPracticeState = { projectName: "", itemIndex: 0 };
   }
 
   initialize() {
@@ -64,6 +65,7 @@ export class TutorController {
         this.handleTranslationPracticeCheck();
       }
     });
+    this.elements.translationPracticeNextButton?.addEventListener("click", () => this.handleTranslationPracticeNext());
     this.elements.dictionaryButton.addEventListener("click", () => this.handleShowDictionary());
     this.elements.dictionaryMoreButton.addEventListener("click", () => this.handleShowMoreDictionary());
     this.elements.translationToggleButton.addEventListener("click", () => this.handleTranslationHintsToggle());
@@ -145,8 +147,8 @@ export class TutorController {
 
   handleTranslationPracticeCheck() {
     try {
-      const currentStep = this.getCurrentStep();
-      if (!currentStep) {
+      const currentItem = this.getCurrentTranslationPracticeItem();
+      if (!currentItem) {
         this.setTranslationPracticeResult("Немає активного завдання для перевірки.");
         return;
       }
@@ -158,17 +160,34 @@ export class TutorController {
         return;
       }
 
-      const isCorrect = this.inputValidator.isAnswerCorrect(validationResult.normalized, currentStep.expectedAnswers);
+      const isCorrect = this.inputValidator.isAnswerCorrect(validationResult.normalized, [currentItem.expectedAnswer]);
       if (isCorrect) {
-        this.setTranslationPracticeResult("Правильно. Переклад збігається з очікуваною відповіддю.");
+        this.setTranslationPracticeResult("Правильно ✅");
         return;
       }
 
-      this.setTranslationPracticeResult(`Поки ні. Приклад правильної відповіді: ${currentStep.expectedAnswers[0]}`);
+      this.setTranslationPracticeResult(`Неправильно ❌ Правильна відповідь: ${currentItem.expectedAnswer}`);
     } catch (error) {
       this.logger.error("app.translationPractice.failed", error);
       this.setTranslationPracticeResult(UI_TEXT.UNKNOWN_ERROR);
     }
+  }
+
+  handleTranslationPracticeNext() {
+    const currentStep = this.getCurrentStep();
+    if (!currentStep) {
+      this.updateTranslationPracticePrompt();
+      return;
+    }
+
+    const items = this.getTranslationPracticeItems(currentStep.project);
+    if (items.length === 0) {
+      this.updateTranslationPracticePrompt();
+      return;
+    }
+
+    this.translationPracticeState.itemIndex = (this.translationPracticeState.itemIndex + 1) % items.length;
+    this.updateTranslationPracticePrompt();
   }
 
   handleSpeak() {
@@ -583,6 +602,43 @@ export class TutorController {
     return step.expectedAnswers[0];
   }
 
+  getTranslationPracticeItems(projectName) {
+    const projectIntro = PROJECT_INTROS[projectName];
+    if (!projectIntro) {
+      return [];
+    }
+
+    return [
+      ...(projectIntro.words || []),
+      ...(projectIntro.phrases || []),
+    ]
+      .map((item) => ({
+        sourceText: this.getTranslationText(item),
+        expectedAnswer: this.getLearningText(item),
+      }))
+      .filter((item) => item.sourceText && item.expectedAnswer);
+  }
+
+  getCurrentTranslationPracticeItem() {
+    const currentStep = this.getCurrentStep();
+    if (!currentStep) {
+      return null;
+    }
+
+    const items = this.getTranslationPracticeItems(currentStep.project);
+    if (items.length === 0) {
+      return null;
+    }
+
+    if (this.translationPracticeState.projectName !== currentStep.project) {
+      this.translationPracticeState = { projectName: currentStep.project, itemIndex: 0 };
+    }
+
+    const safeIndex = Math.max(0, Math.min(this.translationPracticeState.itemIndex, items.length - 1));
+    this.translationPracticeState.itemIndex = safeIndex;
+    return items[safeIndex];
+  }
+
   getLearningText(item) {
     return getLearningText(item);
   }
@@ -649,10 +705,13 @@ export class TutorController {
       return;
     }
 
-    const currentStep = this.getCurrentStep();
-    promptElement.textContent = currentStep
-      ? `Завдання для перевірки: ${currentStep.promptUa}`
+    const currentItem = this.getCurrentTranslationPracticeItem();
+    promptElement.textContent = currentItem
+      ? `Переклади: ${currentItem.sourceText}`
       : "Обери урок, щоб отримати завдання для перекладу.";
+    if (this.elements.translationPracticeInput) {
+      this.elements.translationPracticeInput.value = "";
+    }
     this.setTranslationPracticeResult("");
   }
 

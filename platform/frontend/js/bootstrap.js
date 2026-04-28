@@ -48,6 +48,7 @@ export function collectTrainerElements() {
     translationPracticePrompt: document.getElementById("translationPracticePrompt"),
     translationPracticeInput: document.getElementById("translationPracticeInput"),
     translationPracticeCheckButton: document.getElementById("translationPracticeCheckButton"),
+    translationPracticeNextButton: document.getElementById("translationPracticeNextButton"),
     translationPracticeResult: document.getElementById("translationPracticeResult"),
     dictionaryButton: document.getElementById("dictionaryButton"),
     dictionaryMoreButton: document.getElementById("dictionaryMoreButton"),
