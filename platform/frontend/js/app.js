@@ -65,6 +65,8 @@ export class TutorController {
         this.handleTranslationPracticeCheck();
       }
     });
+    this.elements.translationPracticeRevealButton?.addEventListener("click", () => this.handleTranslationPracticeReveal());
+    this.elements.translationPracticeSpeakButton?.addEventListener("click", () => this.handleTranslationPracticeSpeak());
     this.elements.translationPracticeNextButton?.addEventListener("click", () => this.handleTranslationPracticeNext());
     this.elements.dictionaryButton.addEventListener("click", () => this.handleShowDictionary());
     this.elements.dictionaryMoreButton.addEventListener("click", () => this.handleShowMoreDictionary());
@@ -188,6 +190,34 @@ export class TutorController {
 
     this.translationPracticeState.itemIndex = (this.translationPracticeState.itemIndex + 1) % items.length;
     this.updateTranslationPracticePrompt();
+  }
+
+  handleTranslationPracticeReveal() {
+    const currentItem = this.getCurrentTranslationPracticeItem();
+    if (!currentItem) {
+      this.setTranslationPracticeResult("Немає активного завдання для перевірки.");
+      return;
+    }
+
+    this.setTranslationPracticeResult(`Правильна відповідь: ${currentItem.expectedAnswer}`);
+  }
+
+  handleTranslationPracticeSpeak() {
+    const currentItem = this.getCurrentTranslationPracticeItem();
+    if (!currentItem) {
+      this.setTranslationPracticeResult("Немає активного завдання для озвучення.");
+      return;
+    }
+
+    if (!("speechSynthesis" in window) || typeof window.SpeechSynthesisUtterance !== "function") {
+      this.setTranslationPracticeResult("Озвучення не підтримується у цьому браузері");
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(currentItem.expectedAnswer);
+    utterance.lang = APP_CONFIG.CURRENT_LEARNING_LANGUAGE === "it" ? "it-IT" : "en-US";
+    window.speechSynthesis.speak(utterance);
   }
 
   handleSpeak() {
