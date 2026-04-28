@@ -13,6 +13,7 @@ export const lessonIdParamsSchema = z.object({
   lessonId: UUID_SCHEMA,
 });
 
+<<<<<<< HEAD
 export const learningContentQuerySchema = z.object({
   learningLanguage: languageCodeSchema
     .refine((value) => LANGUAGE_CONSTANTS.supportedLearningLanguages.includes(value), "Unsupported learning language")
@@ -23,6 +24,10 @@ export const learningContentQuerySchema = z.object({
       "Unsupported translation language",
     )
     .optional(),
+=======
+export const lessonContentQuerySchema = z.object({
+  targetLang: z.enum(["en", "it"]).optional().default("en"),
+>>>>>>> dcdd6c04796379ae97ec4794a72ccd547b201aca
 });
 
 export const submitAttemptSchema = z.object({

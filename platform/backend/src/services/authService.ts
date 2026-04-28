@@ -40,7 +40,7 @@ export class AuthService {
     return { userId: createdUser.id, email: createdUser.email };
   }
 
-  async login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string }> {
+  async login(email: string, password: string): Promise<{ accessToken: string; refreshToken: string; userId: string; email: string }> {
     const user = await userRepository.findByEmail(email);
     if (!user) {
       throw new HttpError(401, "Invalid credentials");
@@ -58,7 +58,7 @@ export class AuthService {
       this.hashToken(refreshToken),
       new Date(Date.now() + env.jwtRefreshTtlDays * 24 * 60 * 60 * 1000),
     );
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken, userId: user.id, email: user.email };
   }
 
   async refresh(refreshToken: string): Promise<{ accessToken: string; refreshToken: string }> {

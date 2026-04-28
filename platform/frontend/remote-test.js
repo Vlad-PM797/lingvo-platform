@@ -1,16 +1,42 @@
+<<<<<<< HEAD
+=======
+const REMOTE_TEST_STORAGE_KEYS = Object.freeze({
+  backendUrl: "lingvo_backend_url",
+  accessToken: "lingvo_access_token",
+  refreshToken: "lingvo_refresh_token",
+  targetLang: "lingvo_target_lang",
+});
+
+>>>>>>> dcdd6c04796379ae97ec4794a72ccd547b201aca
 const REMOTE_TEST_ELEMENTS = {
   blocked: document.getElementById("remoteTestBlocked"),
   form: document.getElementById("remoteTestForm"),
   email: document.getElementById("remoteLoginEmail"),
   password: document.getElementById("remoteLoginPassword"),
+  targetLangSelect: document.getElementById("remoteTargetLangSelect"),
   loginButton: document.getElementById("remoteLoginButton"),
   output: document.getElementById("remoteTestOutput"),
   backendHint: document.getElementById("remoteBackendHint"),
 };
 
+<<<<<<< HEAD
 const authClient = window.LingvoAuthClient;
 const sharedUi = window.LingvoFrontendShared;
 const logger = sharedUi.createConsoleLogger("remote_test");
+=======
+const TARGET_LANG = Object.freeze({
+  english: "en",
+  italian: "it",
+});
+
+function logRemoteTestInfo(operationName, payload) {
+  try {
+    console.info(`[INFO] ${operationName}`, payload || {});
+  } catch (error) {
+    console.error("[ERROR] remote_test.log", error);
+  }
+}
+>>>>>>> dcdd6c04796379ae97ec4794a72ccd547b201aca
 
 const REMOTE_TEST_MESSAGES = Object.freeze({
   backendMissing: "РќРµ РЅР°Р»Р°С€С‚РѕРІР°РЅРѕ LINGVO_PUBLIC_BACKEND_URL Сѓ lingvoPublicConfig.js.",
@@ -71,7 +97,22 @@ function setRemoteTestOutput(text, mode) {
   }
 }
 
+<<<<<<< HEAD
 async function performRemoteLogin(baseUrl) {
+=======
+function getSelectedTargetLang() {
+  const raw = String(REMOTE_TEST_ELEMENTS.targetLangSelect?.value || "").trim().toLowerCase();
+  return raw === TARGET_LANG.italian ? TARGET_LANG.italian : TARGET_LANG.english;
+}
+
+async function performRemoteLogin() {
+  const baseUrl = getConfiguredBackendUrl();
+  if (!baseUrl) {
+    setRemoteTestOutput("Не налаштовано LINGVO_PUBLIC_BACKEND_URL у lingvoPublicConfig.js.", "warn");
+    return;
+  }
+
+>>>>>>> dcdd6c04796379ae97ec4794a72ccd547b201aca
   const email = String(REMOTE_TEST_ELEMENTS.email?.value || "").trim();
   const password = String(REMOTE_TEST_ELEMENTS.password?.value || "");
   if (!email || password.length < 8) {
@@ -80,12 +121,43 @@ async function performRemoteLogin(baseUrl) {
   }
 
   try {
+<<<<<<< HEAD
     logger.info("login.attempt", { email });
     await authClient.login({ email, password }, { baseUrl });
     setRemoteTestOutput(REMOTE_TEST_MESSAGES.loginSuccess, "ok");
     logger.info("login.success", { email });
     window.setTimeout(() => {
       redirectToProjectPage();
+=======
+    logRemoteTestInfo("remote_test.login.attempt", { email });
+    const response = await fetch(`${baseUrl}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const text = await response.text();
+    let data = {};
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch {
+      data = { raw: text };
+    }
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${JSON.stringify(data)}`);
+    }
+    if (data.accessToken) {
+      window.localStorage.setItem(REMOTE_TEST_STORAGE_KEYS.accessToken, data.accessToken);
+    }
+    if (data.refreshToken) {
+      window.localStorage.setItem(REMOTE_TEST_STORAGE_KEYS.refreshToken, data.refreshToken);
+    }
+    window.localStorage.setItem(REMOTE_TEST_STORAGE_KEYS.backendUrl, baseUrl);
+    window.localStorage.setItem(REMOTE_TEST_STORAGE_KEYS.targetLang, getSelectedTargetLang());
+    setRemoteTestOutput("Вхід успішний. Переходимо до платформи…", "ok");
+    logRemoteTestInfo("remote_test.login.success", { email });
+    window.setTimeout(function () {
+      window.location.href = "./project.html";
+>>>>>>> dcdd6c04796379ae97ec4794a72ccd547b201aca
     }, 600);
   } catch (error) {
     logger.error("login.failed", error, { email });
@@ -130,12 +202,28 @@ async function bootstrapRemoteTest() {
       return;
     }
 
+<<<<<<< HEAD
     if (REMOTE_TEST_ELEMENTS.backendHint) {
       REMOTE_TEST_ELEMENTS.backendHint.textContent = `РЎРµСЂРІРµСЂ: ${baseUrl}`;
     }
 
     REMOTE_TEST_ELEMENTS.loginButton?.addEventListener("click", () => {
       void performRemoteLogin(baseUrl);
+=======
+    const savedTargetLang = String(window.localStorage.getItem(REMOTE_TEST_STORAGE_KEYS.targetLang) || "")
+      .trim()
+      .toLowerCase();
+    if (REMOTE_TEST_ELEMENTS.targetLangSelect) {
+      REMOTE_TEST_ELEMENTS.targetLangSelect.value =
+        savedTargetLang === TARGET_LANG.italian ? TARGET_LANG.italian : TARGET_LANG.english;
+    }
+    REMOTE_TEST_ELEMENTS.targetLangSelect?.addEventListener("change", function () {
+      window.localStorage.setItem(REMOTE_TEST_STORAGE_KEYS.targetLang, getSelectedTargetLang());
+    });
+
+    REMOTE_TEST_ELEMENTS.loginButton?.addEventListener("click", function () {
+      void performRemoteLogin();
+>>>>>>> dcdd6c04796379ae97ec4794a72ccd547b201aca
     });
     REMOTE_TEST_ELEMENTS.password?.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {

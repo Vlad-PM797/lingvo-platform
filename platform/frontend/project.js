@@ -1,7 +1,11 @@
 const PROJECT_ELEMENTS = {
   baseUrl: document.getElementById("baseUrl"),
+<<<<<<< HEAD
   learningLanguageSelect: document.getElementById("learningLanguageSelect"),
   learningLanguageHint: document.getElementById("learningLanguageHint"),
+=======
+  targetLangSelect: document.getElementById("targetLangSelect"),
+>>>>>>> dcdd6c04796379ae97ec4794a72ccd547b201aca
   loadCoursesButton: document.getElementById("loadCoursesButton"),
   loadProgressButton: document.getElementById("loadProgressButton"),
   logoutButton: document.getElementById("logoutButton"),
@@ -13,18 +17,35 @@ const PROJECT_ELEMENTS = {
   answerInput: document.getElementById("answerInput"),
   submitAttemptButton: document.getElementById("submitAttemptButton"),
   attemptOutput: document.getElementById("attemptOutput"),
+  loadTesterActivityTodayButton: document.getElementById("loadTesterActivityTodayButton"),
+  loadTesterActivityButton: document.getElementById("loadTesterActivityButton"),
+  testerActivityOutput: document.getElementById("testerActivityOutput"),
 };
 
+<<<<<<< HEAD
 const authClient = window.LingvoAuthClient;
 const learningLanguageClient = window.LingvoLearningLanguage;
 const sharedUi = window.LingvoFrontendShared;
 const sharedLearning = window.LingvoSharedLearning;
 const logger = sharedUi.createConsoleLogger("project");
+=======
+const STORAGE_KEYS = Object.freeze({
+  backendUrl: "lingvo_backend_url",
+  accessToken: "lingvo_access_token",
+  refreshToken: "lingvo_refresh_token",
+  targetLang: "lingvo_target_lang",
+});
+>>>>>>> dcdd6c04796379ae97ec4794a72ccd547b201aca
 
 const PROJECT_MESSAGES = Object.freeze({
   loginRequired: "Сесія відсутня. Увійди ще раз.",
   lessonMissing: "Спочатку обери урок.",
   answerMissing: "Введи відповідь перед відправкою.",
+});
+
+const TARGET_LANG = Object.freeze({
+  english: "en",
+  italian: "it",
 });
 
 const projectState = {
@@ -65,7 +86,71 @@ function getLearningLanguageName(code) {
 }
 
 function getBaseUrlOrThrow() {
+<<<<<<< HEAD
   return sharedUi.getBaseUrlOrThrow(authClient, PROJECT_ELEMENTS.baseUrl);
+=======
+  const fromInput = normalizeBaseUrl(PROJECT_ELEMENTS.baseUrl.value);
+  if (fromInput) {
+    return fromInput;
+  }
+  const fromStorage = normalizeBaseUrl(window.localStorage.getItem(STORAGE_KEYS.backendUrl));
+  if (fromStorage) {
+    return fromStorage;
+  }
+  if (typeof window !== "undefined" && window.LINGVO_PUBLIC_BACKEND_URL) {
+    return normalizeBaseUrl(String(window.LINGVO_PUBLIC_BACKEND_URL));
+  }
+  throw new Error("Вкажи Backend URL або задай LINGVO_PUBLIC_BACKEND_URL у lingvoPublicConfig.js.");
+}
+
+function getAccessTokenOrThrow() {
+  const token = window.localStorage.getItem(STORAGE_KEYS.accessToken);
+  if (!token) {
+    throw new Error(PROJECT_MESSAGES.loginRequired);
+  }
+  return token;
+}
+
+function getTargetLang() {
+  const raw = String(PROJECT_ELEMENTS.targetLangSelect?.value || "").trim().toLowerCase();
+  return raw === TARGET_LANG.italian ? TARGET_LANG.italian : TARGET_LANG.english;
+}
+
+async function requestAuthJson(path, method = "GET", payload = null) {
+  const baseUrl = getBaseUrlOrThrow();
+  const accessToken = getAccessTokenOrThrow();
+  const requestOptions = {
+    method,
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  };
+  if (payload) {
+    requestOptions.headers["Content-Type"] = "application/json";
+    requestOptions.body = JSON.stringify(payload);
+  }
+
+  let response;
+  try {
+    response = await fetch(`${baseUrl}${path}`, requestOptions);
+  } catch (error) {
+    logError("project.request.network_error", error, { path, method });
+    throw error;
+  }
+
+  const text = await response.text();
+  let data = {};
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    data = { raw: text };
+  }
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${JSON.stringify(data)}`);
+  }
+  return data;
+>>>>>>> dcdd6c04796379ae97ec4794a72ccd547b201aca
 }
 
 function renderCourseOptions() {
@@ -254,13 +339,21 @@ async function openLesson() {
   }
 
   try {
+<<<<<<< HEAD
     logger.info("lesson.open.attempt", { lessonId });
     clearLessonSceneMount();
     const lesson = await sharedLearning.fetchLessonById(authClient, getBaseUrlOrThrow(), lessonId);
+=======
+    const targetLang = getTargetLang();
+    logInfo("project.lesson.open.attempt", { lessonId });
+    clearLessonSceneMount();
+    const lesson = await requestAuthJson(`/learning/lessons/${lessonId}?targetLang=${encodeURIComponent(targetLang)}`);
+>>>>>>> dcdd6c04796379ae97ec4794a72ccd547b201aca
     projectState.selectedLesson = lesson;
 
     const learningLanguageName = getLearningLanguageName(lesson.learningLanguage || getSelectedLearningLanguage());
 
+<<<<<<< HEAD
     PROJECT_ELEMENTS.lessonOutput.textContent = sharedLearning.formatLessonPreview(lesson, {
       headingLines: [
         `Урок: ${lesson.title}`,
@@ -273,6 +366,24 @@ async function openLesson() {
       wordLimit: 20,
       phraseLimit: 14,
     });
+=======
+    const wordsPreview = words.slice(0, 20).map((item) => `- ${item.en} — ${item.ua}`).join("\n");
+    const phrasesPreview = phrases.slice(0, 14).map((item) => `- ${item.en} — ${item.ua}`).join("\n");
+
+    PROJECT_ELEMENTS.lessonOutput.textContent = [
+      `Урок: ${lesson.title}`,
+      `Мова вивчення: ${targetLang === TARGET_LANG.italian ? "Італійська" : "Англійська"}`,
+      ``,
+      `Опис:`,
+      `${lesson.description || "(немає)"}`,
+      ``,
+      `Слова (${words.length}):`,
+      wordsPreview || "(немає)",
+      ``,
+      `Фрази (${phrases.length}):`,
+      phrasesPreview || "(немає)",
+    ].join("\n");
+>>>>>>> dcdd6c04796379ae97ec4794a72ccd547b201aca
     const scenes = resolveLessonScenesWithFrontendFallback(lesson);
     renderLessonScenes({ ...lesson, dialogueScenes: scenes });
     try {
@@ -375,6 +486,56 @@ async function loadProgress() {
   }
 }
 
+function formatDuration(totalSeconds) {
+  const safeSeconds = Math.max(0, Number(totalSeconds) || 0);
+  const hours = Math.floor(safeSeconds / 3600);
+  const minutes = Math.floor((safeSeconds % 3600) / 60);
+  const seconds = safeSeconds % 60;
+  return `${hours}г ${minutes}хв ${seconds}с`;
+}
+
+async function loadTesterActivity(hours = 168) {
+  try {
+    const safeHours = Number.isInteger(hours) && hours > 0 ? hours : 168;
+    logInfo("project.testers_activity.load.attempt", { hours: safeHours });
+    const payload = await requestAuthJson(`/admin/testers/activity?hours=${safeHours}&limit=150`);
+    const rows = Array.isArray(payload.rows) ? payload.rows : [];
+    if (rows.length === 0) {
+      PROJECT_ELEMENTS.testerActivityOutput.textContent = "За обраний період активність не знайдена.";
+      return;
+    }
+    const lines = rows.map((row, index) => {
+      const shortUa = String(row.userAgent || "").slice(0, 80);
+      return [
+        `${index + 1}. ${row.email}`,
+        `   userId: ${row.userId}`,
+        `   IP: ${row.ipAddress}`,
+        `   Origin: ${row.origin || "(немає)"}`,
+        `   User-Agent: ${shortUa}${String(row.userAgent || "").length > 80 ? "..." : ""}`,
+        `   Запитів: ${row.totalRequests}`,
+        `   Період: ${row.firstSeenAt} -> ${row.lastSeenAt}`,
+        `   Тривалість: ${formatDuration(row.durationSeconds)}`,
+      ].join("\n");
+    });
+    PROJECT_ELEMENTS.testerActivityOutput.textContent = [
+      `Період звіту: останні ${payload.hours || safeHours} год`,
+      `Рядків: ${rows.length}`,
+      "",
+      ...lines,
+    ].join("\n");
+    logInfo("project.testers_activity.load.success", { count: rows.length, hours: safeHours });
+  } catch (error) {
+    logError("project.testers_activity.load.failed", error);
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.includes("HTTP 403")) {
+      PROJECT_ELEMENTS.testerActivityOutput.textContent =
+        "Немає доступу. Цей блок доступний лише для admin-користувача.";
+      return;
+    }
+    PROJECT_ELEMENTS.testerActivityOutput.textContent = `Помилка завантаження активності:\n${message}`;
+  }
+}
+
 function logout() {
   authClient.logout({ baseUrl: getBaseUrlOrThrow() })
     .catch((error) => {
@@ -388,9 +549,19 @@ function logout() {
 async function bootstrap() {
   sharedUi.populateBackendUrlInput(PROJECT_ELEMENTS.baseUrl, authClient);
 
+<<<<<<< HEAD
   const accessToken = await authClient.restoreSession({
     baseUrl: PROJECT_ELEMENTS.baseUrl.value,
   });
+=======
+  const savedTargetLang = String(window.localStorage.getItem(STORAGE_KEYS.targetLang) || "").trim().toLowerCase();
+  if (PROJECT_ELEMENTS.targetLangSelect) {
+    PROJECT_ELEMENTS.targetLangSelect.value =
+      savedTargetLang === TARGET_LANG.italian ? TARGET_LANG.italian : TARGET_LANG.english;
+  }
+
+  const accessToken = window.localStorage.getItem(STORAGE_KEYS.accessToken);
+>>>>>>> dcdd6c04796379ae97ec4794a72ccd547b201aca
   if (!accessToken) {
     window.location.href = "./remote-test.html";
     return;
@@ -411,7 +582,17 @@ async function bootstrap() {
   window.addEventListener("lingvo-learning-language-changed", () => {
     updateLearningLanguageUi();
   });
+<<<<<<< HEAD
   updateLearningLanguageUi();
+=======
+  PROJECT_ELEMENTS.targetLangSelect?.addEventListener("change", () => {
+    const value = getTargetLang();
+    window.localStorage.setItem(STORAGE_KEYS.targetLang, value);
+    if (projectState.selectedLesson?.id) {
+      void openLesson();
+    }
+  });
+>>>>>>> dcdd6c04796379ae97ec4794a72ccd547b201aca
 
   PROJECT_ELEMENTS.loadCoursesButton.addEventListener("click", () => {
     void loadCourses();
@@ -428,6 +609,12 @@ async function bootstrap() {
   });
   PROJECT_ELEMENTS.submitAttemptButton.addEventListener("click", () => {
     void submitAttempt();
+  });
+  PROJECT_ELEMENTS.loadTesterActivityButton.addEventListener("click", () => {
+    void loadTesterActivity(168);
+  });
+  PROJECT_ELEMENTS.loadTesterActivityTodayButton.addEventListener("click", () => {
+    void loadTesterActivity(24);
   });
 
   void loadCourses();

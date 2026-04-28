@@ -105,13 +105,14 @@ export class LearningContentService {
     };
   }
 
-  async getLessonById(lessonId: string): Promise<{
+  async getLessonById(lessonId: string, targetLang: "en" | "it" = "en"): Promise<{
     id: string;
     code: string;
     title: string;
     description: string;
     ordinal: number;
     courseId: string;
+<<<<<<< HEAD
     learningLanguage: string;
     translationLanguage: string;
     words: Array<{
@@ -132,6 +133,11 @@ export class LearningContentService {
       translationLanguage: string;
       ordinal: number;
     }>;
+=======
+    targetLang: "en" | "it";
+    words: Array<{ en: string; ua: string; ordinal: number }>;
+    phrases: Array<{ en: string; ua: string; ordinal: number }>;
+>>>>>>> dcdd6c04796379ae97ec4794a72ccd547b201aca
     dialogueScenes: Array<{
       dialogueIndex: number;
       promptType: string | null;
@@ -144,8 +150,8 @@ export class LearningContentService {
       throw new HttpError(404, LEARNING_ERROR_MESSAGES.lessonNotFound);
     }
     const [words, phrases] = await Promise.all([
-      lessonRepository.getWordsByLessonId(lessonId),
-      lessonRepository.getPhrasesByLessonId(lessonId),
+      lessonRepository.getWordsByLessonId(lessonId, targetLang),
+      lessonRepository.getPhrasesByLessonId(lessonId, targetLang),
     ]);
 
     let sceneRows: LessonDialogueSceneRecord[] = [];
@@ -182,6 +188,7 @@ export class LearningContentService {
       description: lesson.description,
       ordinal: lesson.ordinal,
       courseId: lesson.course_id,
+<<<<<<< HEAD
       learningLanguage: lesson.learning_language_code,
       translationLanguage: lesson.translation_language_code,
       words: words.map((word) => ({
@@ -202,6 +209,11 @@ export class LearningContentService {
         translationLanguage: lesson.translation_language_code,
         ordinal: phrase.ordinal,
       })),
+=======
+      targetLang,
+      words: words.map((word) => ({ en: word.target_text, ua: word.ua_text, ordinal: word.ordinal })),
+      phrases: phrases.map((phrase) => ({ en: phrase.target_text, ua: phrase.ua_text, ordinal: phrase.ordinal })),
+>>>>>>> dcdd6c04796379ae97ec4794a72ccd547b201aca
       dialogueScenes,
     };
   }

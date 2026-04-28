@@ -15,6 +15,7 @@ import {
   updatePhraseSchema,
   updateWordSchema,
   wordIdParamSchema,
+  testersActivityQuerySchema,
 } from "../schemas/adminSchemas";
 import { logger } from "../utils/logger";
 
@@ -124,6 +125,14 @@ export class AdminController {
     logger.info("admin.delete_phrase.attempt", { adminUserId, phraseId: params.phraseId });
     await adminService.deletePhrase(adminUserId, params.phraseId);
     response.status(200).json({ success: true });
+  }
+
+  async getTestersActivity(request: AuthenticatedRequest, response: Response): Promise<void> {
+    const adminUserId = requireAdminUserId(request);
+    const query = testersActivityQuerySchema.parse(request.query);
+    logger.info("admin.testers_activity.get.attempt", { adminUserId, hours: query.hours, limit: query.limit });
+    const payload = await adminService.getTestersActivity(adminUserId, query);
+    response.status(200).json(payload);
   }
 }
 

@@ -2,10 +2,12 @@ import { Router } from "express";
 import { adminController } from "../controllers/adminController";
 import { asyncHandler } from "../utils/asyncHandler";
 import { requireAdmin } from "../middleware/authMiddleware";
+import { captureTesterActivity } from "../middleware/testerActivityMiddleware";
 
 export const adminRouter = Router();
 
 adminRouter.use(asyncHandler((request, response, next) => requireAdmin(request, response, next)));
+adminRouter.use(asyncHandler((request, response, next) => captureTesterActivity(request, response, next)));
 
 adminRouter.post("/courses", asyncHandler((request, response) => adminController.createCourse(request, response)));
 adminRouter.put("/courses/:courseId", asyncHandler((request, response) => adminController.updateCourse(request, response)));
@@ -30,4 +32,9 @@ adminRouter.put("/phrases/:phraseId", asyncHandler((request, response) => adminC
 adminRouter.delete(
   "/phrases/:phraseId",
   asyncHandler((request, response) => adminController.deletePhrase(request, response)),
+);
+
+adminRouter.get(
+  "/testers/activity",
+  asyncHandler((request, response) => adminController.getTestersActivity(request, response)),
 );
