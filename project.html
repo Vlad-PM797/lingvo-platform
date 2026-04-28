@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lingvo Project</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./topic-lesson-visuals.css" />
+</head>
+<body>
+  <header class="portal-top">
+    <nav class="portal-nav-cluster" aria-label="Розділи">
+      <a class="portal-home-link" href="./landing.html">Головна</a>
+      <a class="portal-home-link" href="./portal.html">Портал</a>
+      <a class="portal-home-link" href="./trainer.html">Тренажер</a>
+    </nav>
+    <button type="button" class="portal-theme-toggle" id="portalThemeToggle" aria-pressed="false">
+      <span aria-hidden="true">◐</span>
+      <span id="portalThemeToggleLabel">Світла</span>
+    </button>
+  </header>
+  <main class="layout">
+    <section class="card">
+      <h1>Lingvo: навчальна платформа</h1>
+      <p class="hint">Тут ти можеш проходити уроки, відправляти відповіді і зберігати прогрес.</p>
+      <label class="label" for="baseUrl">Backend URL</label>
+      <input id="baseUrl" type="url" placeholder="https://your-backend-domain.com" />
+<<<<<<< HEAD
+      <label class="label" for="learningLanguageSelect">Мова навчання</label>
+      <select id="learningLanguageSelect" data-learning-language-select></select>
+      <p class="hint" id="learningLanguageHint">
+        Доступні англійська та італійська у starter-режимі. Обери мову навчання і завантаж курси.
+      </p>
+=======
+      <label class="label" for="targetLangSelect">Мова вивчення (база: українська)</label>
+      <select id="targetLangSelect">
+        <option value="en">Англійська</option>
+        <option value="it">Італійська</option>
+      </select>
+>>>>>>> dcdd6c04796379ae97ec4794a72ccd547b201aca
+      <div class="actions-row">
+        <button id="loadCoursesButton">Завантажити курси</button>
+        <button id="loadProgressButton">Мій прогрес</button>
+        <button id="logoutButton">Вийти</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <label class="label" for="courseSelect">Курс</label>
+      <select id="courseSelect"></select>
+
+      <label class="label" for="lessonSelect">Урок</label>
+      <select id="lessonSelect"></select>
+
+      <div class="project-topic-tools" aria-label="Режим оформлення уроку">
+        <label class="topic-visual-label" for="topicFormatSelect">
+          Вигляд за темою:
+          <select id="topicFormatSelect" class="trainer-variant-select">
+            <option value="auto">Авто</option>
+            <option value="vocab">Словник / числа</option>
+            <option value="commands">Команди / процедури</option>
+            <option value="dialogue">Діалог / фрази</option>
+          </select>
+        </label>
+        <label class="topic-visual-label" for="topicPaletteSelect">
+          Палітра:
+          <select id="topicPaletteSelect" class="trainer-variant-select">
+            <option value="auto">Авто (до теми)</option>
+            <option value="pastel">Pastel</option>
+            <option value="vibrant">Vibrant</option>
+            <option value="monochrome">Monochrome</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="actions-row">
+        <button id="openLessonButton">Відкрити урок</button>
+      </div>
+      <p class="hint scene-find-hint">
+        <strong>Ілюстрації MVP:</strong> з’являться <em>під</em> текстом уроку після «Відкрити урок» для
+        <strong>Basics 01: Greetings</strong> або <strong>Basics 02: Daily Phrases</strong>.
+        Файли лежать у репозиторії: <code>platform/frontend/scenes/</code> (на сервері — поруч із <code>project.html</code>).
+      </p>
+      <pre id="lessonOutput">Завантаж урок для старту.</pre>
+      <div id="lessonSceneMount" class="lesson-scene-mount" hidden aria-label="Сцени до реплік уроку"></div>
+    </section>
+
+    <section class="card">
+      <h2>Відповідь по уроку</h2>
+      <label class="label" for="answerInput">Твоя відповідь</label>
+      <input id="answerInput" type="text" placeholder="Введи відповідь англійською..." />
+      <div class="actions-row">
+        <button id="submitAttemptButton">Надіслати відповідь</button>
+      </div>
+      <pre id="attemptOutput">Обери урок і надішли відповідь.</pre>
+    </section>
+
+    <section class="card">
+      <h2>Моніторинг тестувальників (admin)</h2>
+      <p class="hint">Показує хто тестує, з якого IP/origin і скільки часу активний за обраний період.</p>
+      <div class="actions-row">
+        <button id="loadTesterActivityTodayButton">Сьогодні</button>
+        <button id="loadTesterActivityButton">Завантажити активність (7 днів)</button>
+      </div>
+      <pre id="testerActivityOutput">Доступно тільки для admin-користувача.</pre>
+    </section>
+  </main>
+
+  <script src="./theme.js"></script>
+  <script src="./lingvoPublicConfig.js"></script>
+  <script src="./auth-client.js"></script>
+  <script src="./shared-ui.js"></script>
+  <script src="./shared-learning.js"></script>
+  <script src="./learning-language.js"></script>
+  <script src="./topicLessonVisuals.js"></script>
+  <script src="./lessonScenes.js"></script>
+  <script src="./project.js"></script>
+</body>
+</html>

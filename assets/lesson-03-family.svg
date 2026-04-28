@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Lesson 03 Family</title>
+  <desc id="desc">Family members panel with friendly icons and owl teacher.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1f2937"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="720" fill="url(#bg)"/>
+  <rect x="70" y="70" width="1060" height="580" rx="26" fill="#0f172a" stroke="#a78bfa" stroke-width="3"/>
+  <text x="120" y="150" font-family="Segoe UI, Arial, sans-serif" font-size="34" fill="#e2e8f0">Lesson 03: My Family</text>
+  <g transform="translate(120,210)">
+    <rect x="0" y="0" width="720" height="330" rx="16" fill="#111827"/>
+    <circle cx="120" cy="95" r="56" fill="#fca5a5"/><text x="75" y="190" font-size="26" fill="#fecaca" font-family="Segoe UI">mother</text>
+    <circle cx="300" cy="95" r="56" fill="#93c5fd"/><text x="265" y="190" font-size="26" fill="#bfdbfe" font-family="Segoe UI">father</text>
+    <circle cx="480" cy="95" r="56" fill="#86efac"/><text x="455" y="190" font-size="26" fill="#bbf7d0" font-family="Segoe UI">sister</text>
+    <circle cx="660" cy="95" r="56" fill="#fde68a"/><text x="635" y="190" font-size="26" fill="#fef3c7" font-family="Segoe UI">brother</text>
+    <circle cx="210" cy="250" r="56" fill="#f9a8d4"/><text x="190" y="330" font-size="26" fill="#fce7f3" font-family="Segoe UI">baby</text>
+    <circle cx="510" cy="250" r="56" fill="#67e8f9"/><text x="485" y="330" font-size="26" fill="#cffafe" font-family="Segoe UI">grandma</text>
+  </g>
+  <ellipse cx="930" cy="320" rx="140" ry="110" fill="#f8fafc"/>
+  <circle cx="882" cy="305" r="34" fill="#f59e0b"/><circle cx="978" cy="305" r="34" fill="#f59e0b"/>
+  <circle cx="882" cy="305" r="15" fill="#111827"/><circle cx="978" cy="305" r="15" fill="#111827"/>
+  <polygon points="930,330 906,365 954,365" fill="#ea580c"/>
+  <text x="840" y="465" font-family="Segoe UI, Arial, sans-serif" font-size="30" fill="#e2e8f0">This is my family.</text>
+  <rect x="120" y="575" width="930" height="50" rx="10" fill="#1e293b"/>
+  <text x="148" y="608" font-family="Segoe UI, Arial, sans-serif" font-size="28" fill="#22c55e">I have a brother. My mother is a teacher.</text>
+</svg>

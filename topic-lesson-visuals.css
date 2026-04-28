@@ -1,0 +1,203 @@
+/* Topic workbook modes: format (vocab | commands | dialogue) × palette (pastel | vibrant | monochrome).
+   Scoped to lesson/scene surfaces so trainer variants and global theme stay intact. */
+
+.trainer-topic-tools,
+.project-topic-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.topic-visual-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.project-topic-tools .trainer-variant-select,
+.trainer-topic-tools .trainer-variant-select,
+select.trainer-variant-select {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #0b1220;
+  color: var(--text);
+  padding: 6px 8px;
+  font-size: 13px;
+  min-width: 132px;
+}
+
+html[data-theme="light"] .project-topic-tools .trainer-variant-select,
+html[data-theme="light"] select.trainer-variant-select {
+  background: #f9fafb;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+html[data-theme="light"] .topic-visual-label {
+  color: #334155;
+}
+
+body.topic-palette-pastel {
+  --topic-heading: #4c6ef5;
+  --topic-mount-bg: rgba(238, 244, 255, 0.38);
+  --topic-mount-border: #b8c9f5;
+  --topic-card-border: #93c5fd;
+  --topic-accent-line: #6366f1;
+}
+
+body.topic-palette-vibrant {
+  --topic-heading: #16a34a;
+  --topic-mount-bg: rgba(22, 163, 74, 0.14);
+  --topic-mount-border: #22c55e;
+  --topic-card-border: #15803d;
+  --topic-accent-line: #22c55e;
+}
+
+body.topic-palette-monochrome {
+  --topic-heading: #94a3b8;
+  --topic-mount-bg: rgba(30, 41, 59, 0.55);
+  --topic-mount-border: #64748b;
+  --topic-card-border: #475569;
+  --topic-accent-line: #cbd5e1;
+}
+
+body[class*="topic-palette-"] .trainer-scene-mount,
+body[class*="topic-palette-"] .lesson-scene-mount {
+  background: var(--topic-mount-bg);
+  border-color: var(--topic-mount-border);
+  border-style: solid;
+}
+
+body.topic-format-commands[class*="topic-palette-"] .trainer-scene-mount,
+body.topic-format-commands[class*="topic-palette-"] .lesson-scene-mount {
+  border-width: 2px;
+}
+
+body.topic-format-vocab .trainer-scene-heading,
+body.topic-format-vocab .lesson-scene-heading {
+  color: var(--topic-heading, var(--ok, #22c55e));
+  font-weight: 700;
+}
+
+body.topic-format-commands .trainer-scene-heading,
+body.topic-format-commands .lesson-scene-heading {
+  color: var(--topic-heading, #22c55e);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.78rem;
+}
+
+body.topic-format-dialogue .trainer-scene-heading,
+body.topic-format-dialogue .lesson-scene-heading {
+  color: var(--topic-heading, #94a3b8);
+  font-weight: 600;
+}
+
+body.topic-format-vocab .trainer-scene-grid {
+  counter-reset: lingvoTopicScene;
+}
+
+body.topic-format-vocab .trainer-scene-card {
+  counter-increment: lingvoTopicScene;
+  position: relative;
+  border: 1px solid var(--topic-card-border, var(--border));
+  border-radius: 12px;
+  padding-top: 8px;
+}
+
+body.topic-format-vocab .trainer-scene-card::before {
+  content: counter(lingvoTopicScene);
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  left: auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  background: rgba(99, 102, 241, 0.2);
+  color: var(--topic-heading, #6366f1);
+  border: 1px solid var(--topic-card-border, #818cf8);
+  z-index: 4;
+}
+
+body.topic-format-vocab .lesson-scene-mount .lesson-scene-card {
+  counter-increment: lingvoTopicScene;
+  position: relative;
+  border: 1px solid var(--topic-card-border, var(--border));
+  border-radius: 12px;
+  padding: 10px 10px 10px 12px;
+}
+
+body.topic-format-vocab .lesson-scene-mount {
+  counter-reset: lingvoTopicScene;
+}
+
+body.topic-format-vocab .lesson-scene-mount .lesson-scene-card::before {
+  content: counter(lingvoTopicScene);
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  left: auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  background: rgba(99, 102, 241, 0.2);
+  color: var(--topic-heading, #6366f1);
+  border: 1px solid var(--topic-card-border, #818cf8);
+  z-index: 4;
+}
+
+body.topic-format-dialogue .trainer-scene-en,
+body.topic-format-dialogue .lesson-scene-en {
+  border-left: 4px solid var(--topic-accent-line, #94a3b8);
+  padding-left: 10px;
+  margin-left: 0;
+}
+
+body.topic-format-commands .trainer-scene-caption,
+body.topic-format-commands .lesson-scene-caption {
+  border-top: 1px dashed var(--topic-mount-border, var(--border));
+  padding-top: 8px;
+  margin-top: 6px;
+}
+
+body.topic-format-commands .controls {
+  border-color: var(--topic-mount-border, var(--border));
+}
+
+html[data-theme="light"] body[class*="topic-palette-"] .trainer-scene-mount,
+html[data-theme="light"] body[class*="topic-palette-"] .lesson-scene-mount {
+  background: var(--topic-mount-bg);
+}
+
+html[data-theme="light"] body.topic-palette-pastel {
+  --topic-mount-bg: rgba(239, 246, 255, 0.92);
+  --topic-mount-border: #bfdbfe;
+  --topic-card-border: #93c5fd;
+}
+
+html[data-theme="light"] body.topic-palette-vibrant {
+  --topic-mount-bg: rgba(220, 252, 231, 0.85);
+  --topic-mount-border: #4ade80;
+  --topic-card-border: #16a34a;
+}
+
+html[data-theme="light"] body.topic-palette-monochrome {
+  --topic-mount-bg: rgba(248, 250, 252, 0.95);
+  --topic-mount-border: #94a3b8;
+  --topic-card-border: #cbd5e1;
+}

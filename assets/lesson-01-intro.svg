@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Lesson 01 Intro</title>
+  <desc id="desc">Two students introduce themselves in class with a wise owl teacher.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1024"/>
+      <stop offset="100%" stop-color="#123b5a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="720" fill="url(#bg)"/>
+  <rect x="80" y="80" width="1040" height="560" rx="28" fill="#0f172a" stroke="#38bdf8" stroke-width="3"/>
+  <rect x="120" y="130" width="960" height="70" rx="14" fill="#1e293b"/>
+  <text x="150" y="175" font-family="Segoe UI, Arial, sans-serif" font-size="34" fill="#e2e8f0">Lesson 01: Greetings &amp; Introductions</text>
+  <circle cx="290" cy="390" r="110" fill="#34d399"/>
+  <circle cx="470" cy="390" r="110" fill="#f472b6"/>
+  <circle cx="262" cy="365" r="13" fill="#052e2b"/>
+  <circle cx="318" cy="365" r="13" fill="#052e2b"/>
+  <circle cx="442" cy="365" r="13" fill="#4a1036"/>
+  <circle cx="498" cy="365" r="13" fill="#4a1036"/>
+  <path d="M240 430 Q290 472 340 430" stroke="#fde68a" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <path d="M420 430 Q470 472 520 430" stroke="#fde68a" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <ellipse cx="860" cy="365" rx="130" ry="110" fill="#f8fafc" opacity="0.95"/>
+  <circle cx="812" cy="352" r="36" fill="#f59e0b"/>
+  <circle cx="908" cy="352" r="36" fill="#f59e0b"/>
+  <circle cx="812" cy="352" r="16" fill="#0f172a"/>
+  <circle cx="908" cy="352" r="16" fill="#0f172a"/>
+  <polygon points="860,376 835,410 885,410" fill="#f97316"/>
+  <text x="840" y="500" font-family="Segoe UI, Arial, sans-serif" font-size="30" fill="#0f172a">Owl</text>
+  <rect x="290" y="560" width="620" height="46" rx="10" fill="#1e293b"/>
+  <text x="325" y="592" font-family="Segoe UI, Arial, sans-serif" font-size="28" fill="#22c55e">Hello! My name is Anna. - Nice to meet you.</text>
+</svg>

@@ -1,0 +1,761 @@
+import { APP_CONFIG, UI_TEXT } from "./config.js";
+import { LESSON_MATERIALS, LESSON_STEPS, PROJECT_INTROS } from "./content.js";
+import { collectExpectedAnswers, ensureIntroState } from "./intro-helpers.js";
+import {
+  applyHintsVisibilityClass,
+  buildPhraseListMessage,
+  buildWordListMessage,
+  getInputPlaceholder,
+  getLearningText,
+  getTranslationText,
+  getTranslationToggleButtonLabel,
+  renderTextWithGlossary,
+} from "./ui-helpers.js";
+
+const DICTIONARY_WORD_PAGE_SIZE = 20;
+const DICTIONARY_PHRASE_PAGE_SIZE = 10;
+
+export class TutorController {
+  constructor(options) {
+    this.logger = options.logger;
+    this.inputValidator = options.inputValidator;
+    this.progressRepository = options.progressRepository;
+    this.speechService = options.speechService;
+    this.authExtensionService = options.authExtensionService;
+    this.elements = options.elements;
+    this.progressState = this.progressRepository.loadProgress();
+    this.lastLearningSentence = "";
+    this.translationHintsEnabled = this.progressState.translationHintsEnabled !== false;
+    this.pendingIntroQuestion = null;
+    this.dictionaryViewState = {};
+    this.translationPracticeState = { projectName: "", itemIndex: 0 };
+  }
+
+  initialize() {
+    try {
+      this.logger.info("app.initialize.start");
+      const authState = this.authExtensionService.ensureSession();
+      this.logger.info("auth.state", authState);
+      this.bindEvents();
+      this.populateLessonPicker();
+      this.applyHintsVisibilityClass();
+      this.updateTranslationToggleButtonLabel();
+      this.updateInputPlaceholder();
+      this.updateTranslationPracticePrompt();
+      this.setTaskPrompt("Прочитай повідомлення бота і виконай поточне завдання.");
+      this.renderStatus();
+      this.showCurrentStepMessage();
+      this.logger.info("app.initialize.success");
+    } catch (error) {
+      this.logger.error("app.initialize.failed", error);
+      this.pushBotMessage(UI_TEXT.UNKNOWN_ERROR);
+    }
+  }
+
+  bindEvents() {
+    this.elements.sendButton.addEventListener("click", () => this.handleSubmit());
+    this.elements.userInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        this.handleSubmit();
+      }
+    });
+    this.elements.translationPracticeCheckButton?.addEventListener("click", () => this.handleTranslationPracticeCheck());
+    this.elements.translationPracticeInput?.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        this.handleTranslationPracticeCheck();
+      }
+    });
+    this.elements.translationPracticeRevealButton?.addEventListener("click", () => this.handleTranslationPracticeReveal());
+    this.elements.translationPracticeSpeakButton?.addEventListener("click", () => this.handleTranslationPracticeSpeak());
+    this.elements.translationPracticeNextButton?.addEventListener("click", () => this.handleTranslationPracticeNext());
+    this.elements.dictionaryButton.addEventListener("click", () => this.handleShowDictionary());
+    this.elements.dictionaryMoreButton.addEventListener("click", () => this.handleShowMoreDictionary());
+    this.elements.translationToggleButton.addEventListener("click", () => this.handleTranslationHintsToggle());
+    this.elements.lessonButton.addEventListener("click", () => this.handleLessonReplay());
+    this.elements.speakButton.addEventListener("click", () => this.handleSpeak());
+    this.elements.resetButton.addEventListener("click", () => this.handleReset());
+    this.elements.startLessonButton?.addEventListener("click", () => this.handleStartFromSelectedLesson());
+  }
+
+  handleTranslationHintsToggle() {
+    try {
+      this.translationHintsEnabled = !this.translationHintsEnabled;
+      this.progressState.translationHintsEnabled = this.translationHintsEnabled;
+      this.progressRepository.saveProgress(this.progressState);
+      this.applyHintsVisibilityClass();
+      this.updateTranslationToggleButtonLabel();
+      this.logger.info("app.translationHints.toggle", { enabled: this.translationHintsEnabled });
+    } catch (error) {
+      this.logger.error("app.translationHints.toggle.failed", error);
+      this.pushBotMessage(UI_TEXT.UNKNOWN_ERROR);
+    }
+  }
+
+  handleSubmit() {
+    try {
+      this.logger.info("app.submit.start");
+      const currentStep = this.getCurrentStep();
+      if (!currentStep) {
+        this.pushBotMessage("Урок завершено. Натисни Скинути прогрес для нового старту.");
+        this.setTaskPrompt("Урок завершено. Натисни Скинути прогрес.");
+        return;
+      }
+
+      const introDone = this.runIntroFlowIfNeeded(currentStep.project);
+      if (!introDone && !this.pendingIntroQuestion) {
+        this.elements.userInput.value = "";
+        this.showCurrentStepMessage();
+        return;
+      }
+
+      const validationResult = this.inputValidator.validateRawInput(this.elements.userInput.value);
+      if (!validationResult.valid) {
+        this.pushBotMessage(validationResult.reason);
+        return;
+      }
+
+      const userText = validationResult.normalized;
+      if (this.pendingIntroQuestion) {
+        this.pushUserMessage(this.elements.userInput.value.trim());
+        this.elements.userInput.value = "";
+        this.handleIntroAnswer(userText);
+        return;
+      }
+
+      this.pushUserMessage(this.elements.userInput.value.trim());
+      this.elements.userInput.value = "";
+
+      this.progressState.attemptCount += 1;
+      const isCorrect = this.inputValidator.isAnswerCorrect(userText, currentStep.expectedAnswers);
+      if (isCorrect) {
+        this.progressState.correctCount += 1;
+        this.pushBotMessage(`Правильно. ${currentStep.explanationUa}`);
+        this.progressState.stepIndex += 1;
+      } else {
+        const expected = currentStep.expectedAnswers[0];
+        this.pushBotMessage(`Майже. Приклад правильної відповіді: ${expected}`);
+      }
+
+      this.refreshLevel();
+      this.progressRepository.saveProgress(this.progressState);
+      this.renderStatus();
+      this.showCurrentStepMessage();
+      this.logger.info("app.submit.success", { isCorrect });
+    } catch (error) {
+      this.logger.error("app.submit.failed", error);
+      this.pushBotMessage(UI_TEXT.UNKNOWN_ERROR);
+    }
+  }
+
+  handleTranslationPracticeCheck() {
+    try {
+      const currentItem = this.getCurrentTranslationPracticeItem();
+      if (!currentItem) {
+        this.setTranslationPracticeResult("Немає активного завдання для перевірки.");
+        return;
+      }
+
+      const rawAnswer = String(this.elements.translationPracticeInput?.value || "").trim();
+      const validationResult = this.inputValidator.validateRawInput(rawAnswer);
+      if (!validationResult.valid) {
+        this.setTranslationPracticeResult(validationResult.reason);
+        return;
+      }
+
+      const isCorrect = this.inputValidator.isAnswerCorrect(validationResult.normalized, [currentItem.expectedAnswer]);
+      if (isCorrect) {
+        this.setTranslationPracticeResult("Правильно ✅");
+        return;
+      }
+
+      this.setTranslationPracticeResult(`Неправильно ❌ Правильна відповідь: ${currentItem.expectedAnswer}`);
+    } catch (error) {
+      this.logger.error("app.translationPractice.failed", error);
+      this.setTranslationPracticeResult(UI_TEXT.UNKNOWN_ERROR);
+    }
+  }
+
+  handleTranslationPracticeNext() {
+    const currentStep = this.getCurrentStep();
+    if (!currentStep) {
+      this.updateTranslationPracticePrompt();
+      return;
+    }
+
+    const items = this.getTranslationPracticeItems(currentStep.project);
+    if (items.length === 0) {
+      this.updateTranslationPracticePrompt();
+      return;
+    }
+
+    this.translationPracticeState.itemIndex = (this.translationPracticeState.itemIndex + 1) % items.length;
+    this.updateTranslationPracticePrompt();
+  }
+
+  handleTranslationPracticeReveal() {
+    const currentItem = this.getCurrentTranslationPracticeItem();
+    if (!currentItem) {
+      this.setTranslationPracticeResult("Немає активного завдання для перевірки.");
+      return;
+    }
+
+    this.setTranslationPracticeResult(`Правильна відповідь: ${currentItem.expectedAnswer}`);
+  }
+
+  handleTranslationPracticeSpeak() {
+    const currentItem = this.getCurrentTranslationPracticeItem();
+    if (!currentItem) {
+      this.setTranslationPracticeResult("Немає активного завдання для озвучення.");
+      return;
+    }
+
+    if (!("speechSynthesis" in window) || typeof window.SpeechSynthesisUtterance !== "function") {
+      this.setTranslationPracticeResult("Озвучення не підтримується у цьому браузері");
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(currentItem.expectedAnswer);
+    utterance.lang = APP_CONFIG.CURRENT_LEARNING_LANGUAGE === "it" ? "it-IT" : "en-US";
+    window.speechSynthesis.speak(utterance);
+  }
+
+  handleSpeak() {
+    try {
+      this.logger.info("app.speak.attempt");
+      if (!this.lastLearningSentence) {
+        this.pushBotMessage(`Поки немає фрази ${APP_CONFIG.LEARNING_LANGUAGE_LABEL_UA} для озвучки.`);
+        return;
+      }
+
+      const success = this.speechService.speakLessonText(this.lastLearningSentence);
+      if (!success) {
+        this.pushBotMessage(`Озвучка ${APP_CONFIG.LEARNING_LANGUAGE_LABEL_UA} не підтримується у цьому браузері.`);
+      }
+    } catch (error) {
+      this.logger.error("app.speak.failed", error);
+      this.pushBotMessage(UI_TEXT.UNKNOWN_ERROR);
+    }
+  }
+
+  handleLessonReplay() {
+    try {
+      const currentStep = this.getCurrentStep();
+      if (!currentStep) {
+        this.pushBotMessage("Зараз немає активного уроку для пояснення.");
+        return;
+      }
+
+      this.showLessonMaterialIfNeeded(currentStep.project, true);
+    } catch (error) {
+      this.logger.error("app.handleLessonReplay.failed", error);
+      this.pushBotMessage(UI_TEXT.UNKNOWN_ERROR);
+    }
+  }
+
+  handleShowDictionary() {
+    try {
+      const currentStep = this.getCurrentStep();
+      if (!currentStep) {
+        this.pushBotMessage("Урок завершено. Словник теми зараз недоступний.");
+        return;
+      }
+
+      const projectIntro = PROJECT_INTROS[currentStep.project];
+      if (!projectIntro) {
+        this.pushBotMessage(`Для теми ${currentStep.project} словник не знайдено.`);
+        return;
+      }
+
+      this.dictionaryViewState[currentStep.project] = {
+        wordOffset: 0,
+        phraseOffset: 0,
+      };
+      this.showDictionaryPage(currentStep.project);
+      this.setTaskPrompt(`Показано частину словника теми ${currentStep.project}. Для продовження натисни Показати ще.`);
+    } catch (error) {
+      this.logger.error("app.handleShowDictionary.failed", error);
+      this.pushBotMessage(UI_TEXT.UNKNOWN_ERROR);
+    }
+  }
+
+  handleShowMoreDictionary() {
+    try {
+      const currentStep = this.getCurrentStep();
+      if (!currentStep) {
+        this.pushBotMessage("Урок завершено. Немає активної теми для словника.");
+        return;
+      }
+
+      const projectIntro = PROJECT_INTROS[currentStep.project];
+      if (!projectIntro) {
+        this.pushBotMessage(`Для теми ${currentStep.project} словник не знайдено.`);
+        return;
+      }
+
+      if (!this.dictionaryViewState[currentStep.project]) {
+        this.dictionaryViewState[currentStep.project] = {
+          wordOffset: 0,
+          phraseOffset: 0,
+        };
+      }
+
+      const viewState = this.dictionaryViewState[currentStep.project];
+      const hasMoreWords = viewState.wordOffset < projectIntro.words.length;
+      const hasMorePhrases = viewState.phraseOffset < projectIntro.phrases.length;
+      if (!hasMoreWords && !hasMorePhrases) {
+        this.pushBotMessage(`Словник теми ${currentStep.project} вже показано повністю.`);
+        return;
+      }
+
+      this.showDictionaryPage(currentStep.project);
+    } catch (error) {
+      this.logger.error("app.handleShowMoreDictionary.failed", error);
+      this.pushBotMessage(UI_TEXT.UNKNOWN_ERROR);
+    }
+  }
+
+  handleReset() {
+    try {
+      const shouldReset = window.confirm(UI_TEXT.RESET_CONFIRM);
+      if (!shouldReset) {
+        return;
+      }
+
+      this.progressState = this.progressRepository.createDefaultProgress();
+      this.translationHintsEnabled = this.progressState.translationHintsEnabled !== false;
+      this.pendingIntroQuestion = null;
+      this.progressRepository.clearProgress();
+      this.elements.chatContainer.innerHTML = "";
+      this.applyHintsVisibilityClass();
+      this.updateTranslationToggleButtonLabel();
+      this.updateInputPlaceholder();
+      this.populateLessonPicker();
+      this.renderStatus();
+      this.showCurrentStepMessage();
+      this.logger.info("app.reset.success");
+    } catch (error) {
+      this.logger.error("app.reset.failed", error);
+      this.pushBotMessage(UI_TEXT.UNKNOWN_ERROR);
+    }
+  }
+
+  renderStatus() {
+    this.elements.levelLabel.textContent = this.progressState.level;
+    this.elements.correctCount.textContent = String(this.progressState.correctCount);
+    this.elements.attemptCount.textContent = String(this.progressState.attemptCount);
+  }
+
+  showCurrentStepMessage() {
+    try {
+      const currentStep = this.getCurrentStep();
+      if (!currentStep) {
+        this.updateTranslationPracticePrompt();
+        this.pushBotMessage("Супер. Урок завершено. Натисни Скинути прогрес, щоб почати знову.");
+        return;
+      }
+
+      this.updateTranslationPracticePrompt();
+      const introDone = this.runIntroFlowIfNeeded(currentStep.project);
+      if (!introDone) {
+        return;
+      }
+
+      this.showLessonMaterialIfNeeded(currentStep.project);
+      const learningHint = this.getPrimaryExpectedAnswer(currentStep);
+      this.lastLearningSentence = learningHint;
+      this.syncLessonPickerValue();
+      this.pushBotMessage(`[${currentStep.project}] ${currentStep.promptUa}`);
+      this.setTaskPrompt(`Завдання: ${currentStep.promptUa}`);
+    } catch (error) {
+      this.logger.error("app.showCurrentStepMessage.failed", error);
+    }
+  }
+
+  getCurrentStep() {
+    return LESSON_STEPS[this.progressState.stepIndex] || null;
+  }
+
+  populateLessonPicker() {
+    const selectorElement = this.elements.lessonSelect;
+    if (!selectorElement) {
+      return;
+    }
+    selectorElement.innerHTML = "";
+    LESSON_STEPS.forEach((step, index) => {
+      const optionElement = document.createElement("option");
+      optionElement.value = String(index);
+      optionElement.textContent = `${index + 1}. ${step.project}`;
+      selectorElement.appendChild(optionElement);
+    });
+    this.syncLessonPickerValue();
+  }
+
+  syncLessonPickerValue() {
+    if (!this.elements.lessonSelect) {
+      return;
+    }
+    const stepIndex = Number(this.progressState.stepIndex || 0);
+    const safeIndex = Math.max(0, Math.min(stepIndex, Math.max(LESSON_STEPS.length - 1, 0)));
+    this.elements.lessonSelect.value = String(safeIndex);
+  }
+
+  handleStartFromSelectedLesson() {
+    try {
+      const selectorElement = this.elements.lessonSelect;
+      if (!selectorElement) {
+        return;
+      }
+      const selectedIndex = Number(selectorElement.value);
+      if (!Number.isInteger(selectedIndex) || selectedIndex < 0 || selectedIndex >= LESSON_STEPS.length) {
+        return;
+      }
+      this.progressState.stepIndex = selectedIndex;
+      this.pendingIntroQuestion = null;
+      this.progressRepository.saveProgress(this.progressState);
+      this.showCurrentStepMessage();
+      this.logger.info("app.lessonPicker.start", { selectedIndex });
+    } catch (error) {
+      this.logger.error("app.lessonPicker.start.failed", error);
+      this.pushBotMessage(UI_TEXT.UNKNOWN_ERROR);
+    }
+  }
+
+  showLessonMaterialIfNeeded(projectName, forceShow = false) {
+    try {
+      if (!this.progressState.shownMaterials) {
+        this.progressState.shownMaterials = {};
+      }
+
+      if (this.progressState.shownMaterials[projectName] && !forceShow) {
+        return;
+      }
+
+      const lessonMaterial = LESSON_MATERIALS[projectName];
+      if (!lessonMaterial) {
+        return;
+      }
+
+      this.pushBotMessage(lessonMaterial);
+      this.progressState.shownMaterials[projectName] = true;
+      this.progressRepository.saveProgress(this.progressState);
+      this.logger.info("app.lessonMaterial.shown", { projectName });
+    } catch (error) {
+      this.logger.error("app.lessonMaterial.failed", error, { projectName });
+    }
+  }
+
+  runIntroFlowIfNeeded(projectName) {
+    try {
+      const projectIntro = PROJECT_INTROS[projectName];
+      if (!projectIntro) {
+        return true;
+      }
+
+      const introState = ensureIntroState(this.progressState, projectName, projectIntro);
+      if (introState.completed) {
+        this.pendingIntroQuestion = null;
+        return true;
+      }
+
+      if (!introState.wordsShown) {
+        this.pushBotMessage(this.buildWordListMessage(projectName, projectIntro.words));
+        this.setTaskPrompt("Ознайомся зі словником слів. Коли будеш готовий, натисни Надіслати.");
+        introState.wordsShown = true;
+        this.progressRepository.saveProgress(this.progressState);
+        return false;
+      }
+
+      if (introState.wordsTestIndex < introState.wordsSampleIndices.length) {
+        this.askIntroQuestion(projectName, "words");
+        return false;
+      }
+
+      if (!introState.phrasesShown) {
+        this.pushBotMessage(this.buildPhraseListMessage(projectName, projectIntro.phrases));
+        this.setTaskPrompt("Ознайомся зі словником фраз. Коли будеш готовий, натисни Надіслати.");
+        introState.phrasesShown = true;
+        this.progressRepository.saveProgress(this.progressState);
+        return false;
+      }
+
+      if (introState.phrasesTestIndex < introState.phrasesSampleIndices.length) {
+        this.askIntroQuestion(projectName, "phrases");
+        return false;
+      }
+
+      introState.completed = true;
+      this.progressRepository.saveProgress(this.progressState);
+      this.pushBotMessage(`Тест словника та фраз для теми ${projectName} завершено. Переходимо до вправ уроку.`);
+      return true;
+    } catch (error) {
+      this.logger.error("app.runIntroFlowIfNeeded.failed", error, { projectName });
+      return true;
+    }
+  }
+
+  buildWordListMessage(projectName, words) {
+    return buildWordListMessage(projectName, words);
+  }
+
+  buildPhraseListMessage(projectName, phrases) {
+    return buildPhraseListMessage(projectName, phrases);
+  }
+
+  showDictionaryPage(projectName) {
+    const projectIntro = PROJECT_INTROS[projectName];
+    const viewState = this.dictionaryViewState[projectName];
+
+    const wordsStart = viewState.wordOffset;
+    const wordsEnd = Math.min(wordsStart + DICTIONARY_WORD_PAGE_SIZE, projectIntro.words.length);
+    const wordsSlice = projectIntro.words.slice(wordsStart, wordsEnd);
+    if (wordsSlice.length > 0) {
+      const lines = [
+        `Словник теми ${projectName}: слова ${wordsStart + 1}-${wordsEnd} з ${projectIntro.words.length}`,
+      ];
+      for (const wordItem of wordsSlice) {
+        lines.push(`- ${this.getLearningText(wordItem)} - ${this.getTranslationText(wordItem)}`);
+      }
+      this.pushBotMessage(lines.join("\n"));
+      viewState.wordOffset = wordsEnd;
+    }
+
+    const phrasesStart = viewState.phraseOffset;
+    const phrasesEnd = Math.min(phrasesStart + DICTIONARY_PHRASE_PAGE_SIZE, projectIntro.phrases.length);
+    const phrasesSlice = projectIntro.phrases.slice(phrasesStart, phrasesEnd);
+    if (phrasesSlice.length > 0) {
+      const lines = [
+        `Словник теми ${projectName}: фрази ${phrasesStart + 1}-${phrasesEnd} з ${projectIntro.phrases.length}`,
+      ];
+      for (const phraseItem of phrasesSlice) {
+        lines.push(`- ${this.getLearningText(phraseItem)} - ${this.getTranslationText(phraseItem)}`);
+      }
+      this.pushBotMessage(lines.join("\n"));
+      viewState.phraseOffset = phrasesEnd;
+    }
+  }
+
+  askIntroQuestion(projectName, groupType) {
+    try {
+      const projectIntro = PROJECT_INTROS[projectName];
+      const introState = this.progressState.introProgress[projectName];
+      const isWordGroup = groupType === "words";
+      const list = isWordGroup ? projectIntro.words : projectIntro.phrases;
+      const testIndex = isWordGroup ? introState.wordsTestIndex : introState.phrasesTestIndex;
+      const sampleIndices = isWordGroup ? introState.wordsSampleIndices : introState.phrasesSampleIndices;
+      const actualItemIndex = sampleIndices[testIndex];
+      const direction = isWordGroup ? introState.wordsDirection : introState.phrasesDirection;
+      const currentItem = list[actualItemIndex];
+
+      let promptText = "";
+      let expectedAnswers = [];
+      if (direction === "ua_to_en") {
+        promptText = isWordGroup
+          ? `Тест словника: переклади українською -> ${APP_CONFIG.LEARNING_LANGUAGE_LABEL_UA}: ${this.getTranslationText(currentItem)}`
+          : `Тест фраз: переклади українською -> ${APP_CONFIG.LEARNING_LANGUAGE_LABEL_UA}: ${this.getTranslationText(currentItem)}`;
+        expectedAnswers = this.collectExpectedAnswers(
+          list,
+          (item) => this.getTranslationText(item),
+          this.getTranslationText(currentItem),
+          (item) => this.getLearningText(item),
+        );
+      } else {
+        promptText = isWordGroup
+          ? `Тест словника: переклади ${APP_CONFIG.LEARNING_LANGUAGE_LABEL_UA} -> українською: ${this.getLearningText(currentItem)}`
+          : `Тест фраз: переклади ${APP_CONFIG.LEARNING_LANGUAGE_LABEL_UA} -> українською: ${this.getLearningText(currentItem)}`;
+        expectedAnswers = this.collectExpectedAnswers(
+          list,
+          (item) => this.getLearningText(item),
+          this.getLearningText(currentItem),
+          (item) => this.getTranslationText(item),
+        );
+      }
+
+      this.pendingIntroQuestion = {
+        projectName,
+        groupType,
+        expectedAnswers,
+        promptText,
+      };
+      this.pushBotMessage(promptText);
+      this.setTaskPrompt(promptText);
+    } catch (error) {
+      this.logger.error("app.askIntroQuestion.failed", error, { projectName, groupType });
+    }
+  }
+
+  collectExpectedAnswers(list, getMatchValue, matchFieldValue, getResultValue) {
+    return collectExpectedAnswers(
+      list,
+      getMatchValue,
+      matchFieldValue,
+      getResultValue,
+      (value) => this.inputValidator.normalizeAnswer(value),
+    );
+  }
+
+  handleIntroAnswer(userText) {
+    try {
+      const introQuestion = this.pendingIntroQuestion;
+      if (!introQuestion) {
+        return;
+      }
+
+      const normalizedUserText = this.inputValidator.normalizeAnswer(userText);
+      const isCorrect = introQuestion.expectedAnswers.includes(normalizedUserText);
+      if (!isCorrect) {
+        this.pushBotMessage(`Поки ні. Правильна відповідь: ${introQuestion.expectedAnswers.join(" / ")}`);
+      } else {
+        this.pushBotMessage("Правильно, чудово.");
+      }
+
+      const introState = this.progressState.introProgress[introQuestion.projectName];
+      if (introQuestion.groupType === "words") {
+        introState.wordsTestIndex += 1;
+        introState.wordsDirection = introState.wordsDirection === "ua_to_en" ? "en_to_ua" : "ua_to_en";
+      } else {
+        introState.phrasesTestIndex += 1;
+        introState.phrasesDirection = introState.phrasesDirection === "ua_to_en" ? "en_to_ua" : "ua_to_en";
+      }
+
+      this.pendingIntroQuestion = null;
+      this.progressRepository.saveProgress(this.progressState);
+      this.showCurrentStepMessage();
+    } catch (error) {
+      this.logger.error("app.handleIntroAnswer.failed", error);
+      this.pendingIntroQuestion = null;
+      this.pushBotMessage(UI_TEXT.UNKNOWN_ERROR);
+    }
+  }
+
+  getPrimaryExpectedAnswer(step) {
+    return step.expectedAnswers[0];
+  }
+
+  getTranslationPracticeItems(projectName) {
+    const projectIntro = PROJECT_INTROS[projectName];
+    if (!projectIntro) {
+      return [];
+    }
+
+    return [
+      ...(projectIntro.words || []),
+      ...(projectIntro.phrases || []),
+    ]
+      .map((item) => ({
+        sourceText: this.getTranslationText(item),
+        expectedAnswer: this.getLearningText(item),
+      }))
+      .filter((item) => item.sourceText && item.expectedAnswer);
+  }
+
+  getCurrentTranslationPracticeItem() {
+    const currentStep = this.getCurrentStep();
+    if (!currentStep) {
+      return null;
+    }
+
+    const items = this.getTranslationPracticeItems(currentStep.project);
+    if (items.length === 0) {
+      return null;
+    }
+
+    if (this.translationPracticeState.projectName !== currentStep.project) {
+      this.translationPracticeState = { projectName: currentStep.project, itemIndex: 0 };
+    }
+
+    const safeIndex = Math.max(0, Math.min(this.translationPracticeState.itemIndex, items.length - 1));
+    this.translationPracticeState.itemIndex = safeIndex;
+    return items[safeIndex];
+  }
+
+  getLearningText(item) {
+    return getLearningText(item);
+  }
+
+  getTranslationText(item) {
+    return getTranslationText(item);
+  }
+
+  refreshLevel() {
+    const attempted = this.progressState.attemptCount;
+    if (attempted <= 0) {
+      this.progressState.level = APP_CONFIG.DEFAULT_LEVEL;
+      return;
+    }
+
+    const scorePercent = Math.round((this.progressState.correctCount / attempted) * 100);
+    this.progressState.level = scorePercent >= APP_CONFIG.PASS_THRESHOLD_PERCENT ? "A1" : "A0";
+  }
+
+  pushBotMessage(text) {
+    this.pushMessage(text, "bot");
+  }
+
+  pushUserMessage(text) {
+    this.pushMessage(text, "user");
+  }
+
+  pushMessage(text, role) {
+    const messageElement = document.createElement("article");
+    messageElement.className = `message ${role}`;
+    if (role === "bot") {
+      renderTextWithGlossary(messageElement, text, this.translationHintsEnabled);
+    } else {
+      messageElement.textContent = text;
+    }
+    this.elements.chatContainer.appendChild(messageElement);
+    this.elements.chatContainer.scrollTop = this.elements.chatContainer.scrollHeight;
+  }
+
+  applyHintsVisibilityClass() {
+    applyHintsVisibilityClass(this.translationHintsEnabled);
+  }
+
+  updateTranslationToggleButtonLabel() {
+    const buttonElement = this.elements.translationToggleButton;
+    buttonElement.textContent = getTranslationToggleButtonLabel(this.translationHintsEnabled);
+    if (this.translationHintsEnabled) {
+      buttonElement.classList.remove("is-off");
+    } else {
+      buttonElement.classList.add("is-off");
+    }
+  }
+
+  updateInputPlaceholder() {
+    if (!this.elements.userInput) {
+      return;
+    }
+    this.elements.userInput.placeholder = getInputPlaceholder();
+  }
+
+  updateTranslationPracticePrompt() {
+    const promptElement = this.elements.translationPracticePrompt;
+    if (!promptElement) {
+      return;
+    }
+
+    const currentItem = this.getCurrentTranslationPracticeItem();
+    promptElement.textContent = currentItem
+      ? `Переклади: ${currentItem.sourceText}`
+      : "Обери урок, щоб отримати завдання для перекладу.";
+    if (this.elements.translationPracticeInput) {
+      this.elements.translationPracticeInput.value = "";
+    }
+    this.setTranslationPracticeResult("");
+  }
+
+  setTranslationPracticeResult(message) {
+    if (!this.elements.translationPracticeResult) {
+      return;
+    }
+    this.elements.translationPracticeResult.textContent = message;
+  }
+
+  setTaskPrompt(taskText) {
+    this.elements.taskPrompt.textContent = taskText;
+  }
+
+}
+
+export { TutorController as EnglishTutorController };

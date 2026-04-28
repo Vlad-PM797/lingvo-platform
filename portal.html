@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lingvo Access Portal</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="portal-top">
+    <nav class="portal-nav-cluster" aria-label="Розділи">
+      <a class="portal-home-link" href="./landing.html">Головна</a>
+      <a class="portal-home-link" href="./trainer.html">Тренажер</a>
+      <a class="portal-home-link" href="./project.html">Платформа</a>
+    </nav>
+    <button type="button" class="portal-theme-toggle" id="portalThemeToggle" aria-pressed="false">
+      <span aria-hidden="true">◐</span>
+      <span id="portalThemeToggleLabel">Світла</span>
+    </button>
+  </header>
+  <main class="layout">
+    <section class="card" id="portalBackendCard">
+      <h1>Lingvo: доступ користувача</h1>
+      <p class="hint">
+        Вкажи публічний URL бекенду (наприклад, <code>https://lingvo-api.onrender.com</code>),
+        потім зареєструй користувача або увійди.
+      </p>
+      <label class="label" for="baseUrl">Backend URL</label>
+      <input id="baseUrl" type="url" placeholder="https://your-backend-domain.com" />
+    </section>
+
+    <section class="card" id="portalBackendSummaryCard" hidden>
+      <p class="hint" id="portalBackendSummaryText"></p>
+      <p class="hint">
+        Потрібен інший API? <a class="portal-home-link" href="./portal.html?advanced=1">Показати поле Backend URL</a>
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Реєстрація</h2>
+      <label class="label" for="registerEmail">Email</label>
+      <input id="registerEmail" type="email" placeholder="user@example.com" />
+      <label class="label" for="registerPassword">Пароль (мін. 8 символів)</label>
+      <input id="registerPassword" type="password" placeholder="********" />
+      <button id="registerButton">Зареєструватися</button>
+    </section>
+
+    <section class="card">
+      <h2>Вхід</h2>
+      <label class="label" for="loginEmail">Email</label>
+      <input id="loginEmail" type="email" placeholder="user@example.com" />
+      <label class="label" for="loginPassword">Пароль</label>
+      <input id="loginPassword" type="password" placeholder="********" />
+      <button id="loginButton">Увійти</button>
+    </section>
+
+    <section class="card">
+      <h2>Результат</h2>
+      <pre id="output">Готово до роботи.</pre>
+    </section>
+
+    <section class="card" id="learningCard">
+      <h2>Навчання</h2>
+      <p class="hint">Після входу натисни "Завантажити курси", вибери курс і урок.</p>
+      <div class="actions-row">
+        <button id="loadCoursesButton">Завантажити курси</button>
+      </div>
+
+      <label class="label" for="courseSelect">Курс</label>
+      <select id="courseSelect"></select>
+
+      <label class="label" for="lessonSelect">Урок</label>
+      <select id="lessonSelect"></select>
+
+      <div class="actions-row">
+        <button id="openLessonButton">Відкрити урок</button>
+      </div>
+
+      <pre id="learningOutput">Увійди і завантаж курси.</pre>
+    </section>
+  </main>
+
+  <script src="./theme.js"></script>
+  <script src="./lingvoPublicConfig.js"></script>
+  <script src="./auth-client.js"></script>
+  <script src="./shared-ui.js"></script>
+  <script src="./shared-learning.js"></script>
+  <script src="./main.js"></script>
+</body>
+</html>

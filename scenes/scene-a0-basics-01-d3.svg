@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-labelledby="t">
+  <title id="t">Lingvo scene: nice to meet you</title>
+  <rect width="320" height="240" rx="18" fill="#14532d"/>
+  <circle cx="105" cy="120" r="44" fill="#86efac"/>
+  <circle cx="215" cy="120" r="44" fill="#a5b4fc"/>
+  <path d="M125 120 L195 120" stroke="#fef08a" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="105" cy="108" r="5" fill="#052e16"/>
+  <circle cx="215" cy="108" r="5" fill="#1e1b4b"/>
+  <path d="M92 132 Q105 140 118 132" stroke="#052e16" stroke-width="3" fill="none"/>
+  <path d="M202 132 Q215 140 228 132" stroke="#1e1b4b" stroke-width="3" fill="none"/>
+  <path d="M140 60 Q160 20 180 60" fill="none" stroke="#fde047" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="160" cy="48" r="8" fill="#fde047"/>
+</svg>

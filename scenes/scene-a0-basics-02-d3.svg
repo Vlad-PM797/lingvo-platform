@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-labelledby="t">
+  <title id="t">Lingvo scene: water request dialogue</title>
+  <rect width="320" height="240" rx="18" fill="#0c4a6e"/>
+  <rect x="118" y="56" width="84" height="140" rx="22" fill="#bae6fd" stroke="#0284c7" stroke-width="3"/>
+  <rect x="138" y="76" width="44" height="88" rx="10" fill="#e0f2fe" opacity="0.85"/>
+  <ellipse cx="160" cy="118" rx="18" ry="26" fill="#38bdf8" opacity="0.45"/>
+  <rect x="146" y="40" width="28" height="22" rx="6" fill="#0369a1"/>
+  <circle cx="160" cy="188" r="10" fill="#fbbf24"/>
+  <path d="M52 120 L92 100 L92 160 Z" fill="#fcd34d" opacity="0.9"/>
+  <circle cx="250" cy="130" r="28" fill="#86efac"/>
+  <circle cx="244" cy="122" r="4" fill="#14532d"/>
+  <circle cx="258" cy="122" r="4" fill="#14532d"/>
+</svg>

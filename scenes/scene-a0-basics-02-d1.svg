@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" role="img" aria-labelledby="t">
+  <title id="t">Lingvo scene: morning coffee</title>
+  <rect width="320" height="240" rx="18" fill="#1e293b"/>
+  <circle cx="260" cy="58" r="36" fill="#fbbf24" opacity="0.95"/>
+  <line x1="230" y1="58" x2="290" y2="58" stroke="#f59e0b" stroke-width="4" opacity="0.5"/>
+  <rect x="96" y="120" width="88" height="72" rx="14" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+  <ellipse cx="140" cy="150" rx="28" ry="18" fill="#78350f" opacity="0.35"/>
+  <path d="M184 128 L210 108 L210 188 L184 168 Z" fill="#e2e8f0"/>
+  <rect x="118" y="188" width="84" height="14" rx="6" fill="#94a3b8"/>
+  <text x="160" y="72" text-anchor="middle" font-family="Segoe UI, sans-serif" font-size="13" fill="#fef9c3">AM</text>
+  <rect x="40" y="72" width="56" height="40" rx="6" fill="#334155" stroke="#64748b"/>
+  <line x1="48" y1="82" x2="88" y2="82" stroke="#64748b"/>
+  <line x1="48" y1="92" x2="80" y2="92" stroke="#64748b"/>
+</svg>

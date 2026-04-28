@@ -1,0 +1,10 @@
+{
+  "name": "lingvo-frontend-smoke",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "smoke:prod": "node ./scripts/smoke-check.mjs https://frontend-lovat-iota-62.vercel.app",
+    "smoke:url": "node ./scripts/smoke-check.mjs"
+  }
+}

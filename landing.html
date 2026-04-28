@@ -1,0 +1,203 @@
+﻿<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lingvo — головна</title>
+  <link rel="stylesheet" href="./landing.css" />
+</head>
+<body>
+  <div class="page">
+    <nav class="landing-nav" aria-label="Швидкі посилання">
+      <a href="./portal.html">Портал</a>
+      <span class="landing-nav-sep" aria-hidden="true">·</span>
+      <a href="./trainer.html">Тренажер</a>
+    </nav>
+    <header class="topbar">
+      <div class="logo">Lingvo<span>.</span></div>
+      <div class="topbar-actions">
+        <label class="font-mode-label" for="landingLearningLanguageSelect">Мова навчання</label>
+        <select id="landingLearningLanguageSelect" class="font-select" data-learning-language-select aria-label="Мова навчання">
+        </select>
+        <label class="font-mode-label" for="uaFontSelect">Шрифт</label>
+        <select id="uaFontSelect" class="font-select" aria-label="Шрифт українського тексту на сторінці">
+          <option value="default">За замовчуванням</option>
+          <option value="rutenia">Рутенія (укр.)</option>
+        </select>
+        <button type="button" class="theme-toggle" id="themeToggle" aria-pressed="false" title="Тема оформлення">
+          <span aria-hidden="true">◐</span>
+          <span id="themeToggleLabel">Світла</span>
+        </button>
+        <span class="streak" id="landingStreak" role="status" aria-live="polite">🔥 7 днів поспіль</span>
+        <button type="button" class="btn btn-ghost" id="openAuthLogin" aria-haspopup="dialog">Увійти</button>
+        <button type="button" class="btn btn-ghost" id="openAuthRegister" aria-haspopup="dialog">Реєстрація</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div>
+        <h1 class="hero-title-gothic">Іноземна з нуля — без нудних підручників</h1>
+        <p>Короткі уроки, діалоги й тренажер: ніби спілкуєшся з репетитором, але в своєму темпі.</p>
+        <div class="cta-row">
+          <button type="button" class="btn btn-primary" id="openGuestTour">Безкоштовний ознайомлювальний тур</button>
+          <button type="button" class="btn btn-tour" id="openAuthFromHero">Вхід за 2 кроки</button>
+        </div>
+      </div>
+      <aside class="mascot-card" id="landingMascotCard" aria-label="Приклад прогресу">
+        <div class="mascot" role="img" aria-label="Мудрий учитель — сова">🦉</div>
+        <p class="landing-card-sub" id="landingCardSub">Сьогодні: урок 3 · Привітання</p>
+        <div class="progress-label" id="landingProgressLabel">Прогрес уроку</div>
+        <div class="progress-bar"><i></i></div>
+      </aside>
+    </section>
+
+    <div class="features">
+      <div class="feat"><strong>XP</strong> — за кожну відповідь накопичуєш досвід.</div>
+      <div class="feat"><strong>Streak</strong> — щоденна звичка без тиску.</div>
+      <div class="feat"><strong>Українські підказки</strong> — не губишся на старті.</div>
+    </div>
+
+    <p class="ua-font-credit" aria-live="polite">
+      Шрифт <strong>Rutenia (Рутенія)</strong> © VasylChebanyk; ліцензія
+      <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.uk" rel="noopener noreferrer" target="_blank">CC BY-SA 4.0</a>.
+      Текст ліцензії: <code>fonts/README-Rutenia.txt</code>.
+    </p>
+
+    <section id="platformShell" class="platform-shell" aria-label="Демо платформи" hidden>
+      <nav class="platform-nav" aria-label="Навігація платформи">
+        <button type="button" id="navHome" data-panel="panelHome">Головна</button>
+        <button type="button" id="navCourses" data-panel="panelCourses">Курси</button>
+        <button type="button" id="navProfile" data-panel="panelProfile">Профіль</button>
+      </nav>
+      <div class="platform-main">
+        <div id="panelHome" class="platform-panel is-active">
+          <h2 class="landing-panel-title">Вітаємо в Lingvo</h2>
+          <p class="landing-panel-text">Тут буде твій дашборд: streak, наступний урок, швидкий старт.</p>
+        </div>
+        <div id="panelCourses" class="platform-panel">
+          <h2 class="landing-panel-title">Курси</h2>
+          <p class="landing-panel-text">Список курсів і уроків — як у повній версії платформи.</p>
+        </div>
+        <div id="panelProfile" class="platform-panel">
+          <h2 class="landing-panel-title">Профіль</h2>
+          <p class="landing-panel-text">Налаштування, мова інтерфейсу, вихід з акаунту.</p>
+        </div>
+        <div class="tour-popover" id="tourPopover" role="status">
+          <h3 id="tourTitle">Тур</h3>
+          <p id="tourText"></p>
+          <div class="tour-actions">
+            <button type="button" class="btn btn-ghost" id="tourSkip">Закрити тур</button>
+            <button type="button" class="btn btn-primary" id="tourNext">Далі</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cheer-squad" aria-label="Декоративні персонажі: радість від навчання">
+      <p class="cheer-squad-title">Звірята Lingvo вже вивчають англійську — приєднуйся!</p>
+      <p class="cheer-squad-sub">Кожен урок ближче до мети. <em>Learning English can be pure joy.</em></p>
+      <p class="cheer-squad-live" id="cheerSquadLive" hidden aria-live="polite"></p>
+      <div class="cheer-squad-row" role="presentation">
+        <div class="cheer-beast" title="Лисичка"><span aria-hidden="true">🦊</span></div>
+        <div class="cheer-beast" title="Ведмедик"><span aria-hidden="true">🐻</span></div>
+        <div class="cheer-beast" title="Жабеня"><span aria-hidden="true">🐸</span></div>
+        <div class="cheer-beast" title="Пінгвін"><span aria-hidden="true">🐧</span></div>
+        <div class="cheer-beast" title="Їжачок"><span aria-hidden="true">🦔</span></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-backdrop" id="authBackdrop" role="presentation" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle" tabindex="-1">
+      <h2 id="authModalTitle">Вхід</h2>
+      <p class="modal-sub" id="authModalSub">Два кроки: акаунт → пароль.</p>
+
+      <div class="auth-tabs" role="tablist">
+        <button type="button" role="tab" id="tabLogin" class="is-active" aria-selected="true">Вхід</button>
+        <button type="button" role="tab" id="tabRegister" aria-selected="false">Реєстрація</button>
+      </div>
+
+      <div id="authForgotBlock" hidden>
+        <span class="step-badge" id="forgotStepBadge">Відновлення паролю</span>
+        <div class="field">
+          <label for="forgotEmail">Пошта реєстрації</label>
+          <input type="email" id="forgotEmail" autocomplete="email" placeholder="you@example.com" />
+        </div>
+        <p class="form-error" id="forgotError" aria-live="polite"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-primary" id="forgotSubmit">Надіслати лист з посиланням</button>
+          <button type="button" class="btn btn-ghost" id="forgotBack">Назад до входу</button>
+        </div>
+        <p class="form-success" id="forgotSuccess" hidden></p>
+      </div>
+
+      <div id="authLoginBlock">
+        <span class="step-badge" id="loginStepBadge">Крок 1 з 2 · акаунт</span>
+        <div id="loginStep1">
+          <div class="field">
+            <label for="loginEmail">Електронна пошта</label>
+            <input type="email" id="loginEmail" autocomplete="username" placeholder="you@example.com" />
+          </div>
+          <p class="form-error" id="loginEmailError" aria-live="polite"></p>
+          <button type="button" class="btn btn-primary" id="loginToStep2">Далі</button>
+        </div>
+        <div id="loginStep2" hidden>
+          <div class="field">
+            <label for="loginPassword">Пароль</label>
+            <input type="password" id="loginPassword" autocomplete="current-password" placeholder="••••••••" />
+          </div>
+          <p class="form-error" id="loginPasswordError" aria-live="polite"></p>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-primary" id="loginSubmit">Увійти</button>
+            <button type="button" class="btn btn-ghost" id="loginBackToStep1">Назад</button>
+          </div>
+          <div class="link-row">
+            <button type="button" class="link-btn" id="openForgotFromLogin">Забули пароль?</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="authRegisterBlock" hidden>
+        <button type="button" class="btn btn-google" id="registerGoogle" aria-label="Продовжити з Google">
+          <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="m6.306 14.691 6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
+          Продовжити з Google
+        </button>
+        <div class="divider">або пошта</div>
+        <span class="step-badge" id="registerStepBadge">Крок 1 з 2 · акаунт</span>
+        <div id="registerStep1">
+          <div class="field">
+            <label for="registerEmail">Електронна пошта</label>
+            <input type="email" id="registerEmail" autocomplete="email" placeholder="you@example.com" />
+          </div>
+          <p class="form-error" id="registerEmailError" aria-live="polite"></p>
+          <button type="button" class="btn btn-primary" id="registerToStep2">Далі</button>
+        </div>
+        <div id="registerStep2" hidden>
+          <div class="field">
+            <label for="registerPassword">Пароль</label>
+            <input type="password" id="registerPassword" autocomplete="new-password" placeholder="мінімум 8 символів" />
+          </div>
+          <div class="field">
+            <label for="registerPasswordConfirm">Підтвердження паролю</label>
+            <input type="password" id="registerPasswordConfirm" autocomplete="new-password" placeholder="повтори пароль" />
+          </div>
+          <p class="form-error" id="registerPasswordError" aria-live="polite"></p>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-primary" id="registerSubmit">Створити акаунт</button>
+            <button type="button" class="btn btn-ghost" id="registerBackToStep1">Назад</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="hint-note">
+        Макет UI: Google OAuth і лист для скидання паролю підключаються на бекенді (клієнтський ID, SMTP / провайдер листів).
+      </p>
+      <button type="button" class="link-btn" id="closeAuthModal" style="margin-top:0.75rem;display:block;width:100%;text-align:center;">Закрити</button>
+    </div>
+  </div>
+
+  <script src="./theme.js"></script>
+  <script src="./learning-language.js"></script>
+  <script type="module" src="./landing.js"></script>
+</body>
+</html>
